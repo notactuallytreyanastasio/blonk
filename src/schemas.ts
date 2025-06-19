@@ -6,6 +6,7 @@ export interface BlonkBlip {
   title: string;
   body?: string;
   url?: string;
+  tags?: string[];
   createdAt: string;
   fluffs: number;
 }

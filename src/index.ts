@@ -16,7 +16,8 @@ async function main() {
     const blipUri = await blipManager.createBlip(
       'Welcome to the Blonk Vibe Radar!',
       'This is the first blip on Blonk, where vibes are tracked on the radar.',
-      'https://atproto.com'
+      'https://atproto.com',
+      ['welcome', 'atproto', 'blonk']
     );
     console.log(`Blip transmitted with URI: ${blipUri}\n`);
 

@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
+    "web": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -15,8 +16,14 @@
   "dependencies": {
     "@atproto/api": "^0.15.16",
     "@atproto/lexicon": "^0.4.11",
+    "@types/express": "^5.0.3",
+    "@types/express-session": "^1.18.2",
     "@types/node": "^24.0.3",
     "dotenv": "^16.5.0",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.18.1",
     "tsx": "^4.20.3",
     "typescript": "^5.8.3"
   }

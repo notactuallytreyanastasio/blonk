@@ -4,11 +4,12 @@ import { BlonkBlip, BLIP_NSID } from './schemas';
 export class BlipManager {
   constructor(private agent: BskyAgent) {}
 
-  async createBlip(title: string, body?: string, url?: string): Promise<string> {
+  async createBlip(title: string, body?: string, url?: string, tags?: string[]): Promise<string> {
     const blip: BlonkBlip = {
       title,
       body,
       url,
+      tags,
       createdAt: new Date().toISOString(),
       fluffs: 0,
     };
