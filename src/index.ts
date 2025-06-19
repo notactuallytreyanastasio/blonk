@@ -1,5 +1,5 @@
 import { BlonkAgent } from './agent';
-import { PostManager } from './posts';
+import { BlipManager } from './blips';
 
 async function main() {
   try {
@@ -7,29 +7,29 @@ async function main() {
     await blonkAgent.login();
     
     const agent = blonkAgent.getAgent();
-    const postManager = new PostManager(agent);
+    const blipManager = new BlipManager(agent);
 
-    console.log('\n🚀 Blonk - AT Protocol Reddit Clone');
-    console.log('=====================================\n');
+    console.log('\n📡 Blonk - Vibe Radar');
+    console.log('=====================\n');
 
-    console.log('Creating a test post...');
-    const postUri = await postManager.createPost(
-      'Welcome to Blonk!',
-      'This is the first post on Blonk, a Reddit clone built on AT Protocol.',
+    console.log('Transmitting a test blip...');
+    const blipUri = await blipManager.createBlip(
+      'Welcome to the Blonk Vibe Radar!',
+      'This is the first blip on Blonk, where vibes are tracked on the radar.',
       'https://atproto.com'
     );
-    console.log(`Post created with URI: ${postUri}\n`);
+    console.log(`Blip transmitted with URI: ${blipUri}\n`);
 
-    console.log('Fetching recent posts...');
-    const posts = await postManager.getPosts(10);
+    console.log('Scanning radar for recent blips...');
+    const blips = await blipManager.getBlips(10);
     
-    console.log(`\nFound ${posts.length} posts:`);
-    posts.forEach((post, index) => {
-      console.log(`\n${index + 1}. ${post.title}`);
-      if (post.body) console.log(`   ${post.body.substring(0, 100)}...`);
-      if (post.url) console.log(`   🔗 ${post.url}`);
-      console.log(`   📅 ${new Date(post.createdAt).toLocaleString()}`);
-      console.log(`   ⬆️  ${post.votes} votes`);
+    console.log(`\n📡 ${blips.length} blips on the radar:`);
+    blips.forEach((blip, index) => {
+      console.log(`\n${index + 1}. ${blip.title}`);
+      if (blip.body) console.log(`   ${blip.body.substring(0, 100)}...`);
+      if (blip.url) console.log(`   🔗 ${blip.url}`);
+      console.log(`   📅 ${new Date(blip.createdAt).toLocaleString()}`);
+      console.log(`   ✨ ${blip.fluffs} fluffs`);
     });
 
   } catch (error) {

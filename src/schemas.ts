@@ -1,16 +1,16 @@
-export const POST_NSID = 'com.blonk.post';
-export const VOTE_NSID = 'com.blonk.vote';
+export const BLIP_NSID = 'com.blonk.blip';
+export const FLUFF_NSID = 'com.blonk.fluff';
 export const COMMENT_NSID = 'com.blonk.comment';
 
-export interface BlonkPost {
+export interface BlonkBlip {
   title: string;
   body?: string;
   url?: string;
   createdAt: string;
-  votes: number;
+  fluffs: number;
 }
 
-export interface BlonkVote {
+export interface BlonkFluff {
   subject: {
     uri: string;
     cid: string;
@@ -20,7 +20,7 @@ export interface BlonkVote {
 }
 
 export interface BlonkComment {
-  post: {
+  blip: {
     uri: string;
     cid: string;
   };

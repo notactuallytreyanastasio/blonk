@@ -1,43 +1,43 @@
 import { BskyAgent } from '@atproto/api';
-import { BlonkPost, POST_NSID } from './schemas';
+import { BlonkBlip, BLIP_NSID } from './schemas';
 
-export class PostManager {
+export class BlipManager {
   constructor(private agent: BskyAgent) {}
 
-  async createPost(title: string, body?: string, url?: string): Promise<string> {
-    const post: BlonkPost = {
+  async createBlip(title: string, body?: string, url?: string): Promise<string> {
+    const blip: BlonkBlip = {
       title,
       body,
       url,
       createdAt: new Date().toISOString(),
-      votes: 0,
+      fluffs: 0,
     };
 
     const response = await this.agent.com.atproto.repo.createRecord({
       repo: this.agent.session?.did!,
-      collection: POST_NSID,
-      record: post,
+      collection: BLIP_NSID,
+      record: blip,
     });
 
-    console.log(`Created post: ${title}`);
+    console.log(`Created blip: ${title}`);
     return response.data.uri;
   }
 
-  async getPosts(limit: number = 50) {
+  async getBlips(limit: number = 50) {
     const response = await this.agent.com.atproto.repo.listRecords({
       repo: this.agent.session?.did!,
-      collection: POST_NSID,
+      collection: BLIP_NSID,
       limit,
     });
 
     return response.data.records.map(record => ({
       uri: record.uri,
       cid: record.cid,
-      ...record.value as BlonkPost,
+      ...record.value as BlonkBlip,
     }));
   }
 
-  async getPost(uri: string) {
+  async getBlip(uri: string) {
     const [repo, collection, rkey] = uri.replace('at://', '').split('/');
     
     const response = await this.agent.com.atproto.repo.getRecord({
@@ -49,7 +49,7 @@ export class PostManager {
     return {
       uri,
       cid: response.data.cid,
-      ...response.data.value as BlonkPost,
+      ...response.data.value as BlonkBlip,
     };
   }
 }
