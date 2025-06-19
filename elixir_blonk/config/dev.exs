@@ -82,4 +82,11 @@ config :phoenix_live_view,
   enable_expensive_runtime_checks: true
 
 # Disable swoosh api client as it is only required for production adapters.
-config :swoosh, :api_client, false
+# config :swoosh, :api_client, false
+
+# Firehose configuration
+config :elixir_blonk, :firehose_enabled, true
+
+# ATProto configuration
+config :elixir_blonk, :atproto_enabled, true
+config :elixir_blonk, :atproto_service, "https://bsky.social"

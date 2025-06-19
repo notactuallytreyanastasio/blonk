@@ -16,6 +16,12 @@ defmodule ElixirBlonk.Application do
       {Finch, name: ElixirBlonk.Finch},
       # Start a worker by calling: ElixirBlonk.Worker.start_link(arg)
       # {ElixirBlonk.Worker, arg},
+      # Task supervisor for async operations
+      {Task.Supervisor, name: ElixirBlonk.TaskSupervisor},
+      # Start the ATProto session manager
+      ElixirBlonk.ATProto.SessionManager,
+      # Start the Firehose supervisor
+      ElixirBlonk.Firehose.Supervisor,
       # Start to serve requests, typically the last entry
       ElixirBlonkWeb.Endpoint
     ]

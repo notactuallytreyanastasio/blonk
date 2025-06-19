@@ -32,6 +32,7 @@ defmodule ElixirBlonk.MixProject do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bcrypt_elixir, "~> 3.0"},
       {:phoenix, "~> 1.7.21"},
       {:phoenix_ecto, "~> 4.5"},
       {:ecto_sql, "~> 3.10"},
@@ -50,14 +51,17 @@ defmodule ElixirBlonk.MixProject do
        app: false,
        compile: false,
        depth: 1},
-      {:swoosh, "~> 1.5"},
+      # {:swoosh, "~> 1.5"}, # Temporarily disabled due to req version conflict
       {:finch, "~> 0.13"},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5"}
+      {:bandit, "~> 1.5"},
+      {:websockex, "~> 0.4.3"},
+      {:atproto, "~> 0.1.3"},
+      {:dotenv, "~> 3.0.0"}
     ]
   end
 

@@ -7,6 +7,15 @@
 # General application configuration
 import Config
 
+# Load .env file if it exists
+if File.exists?(".env") do
+  try do
+    Dotenv.load()
+  rescue
+    _ -> :ok
+  end
+end
+
 config :elixir_blonk,
   ecto_repos: [ElixirBlonk.Repo],
   generators: [timestamp_type: :utc_datetime]
@@ -29,7 +38,7 @@ config :elixir_blonk, ElixirBlonkWeb.Endpoint,
 #
 # For production it's recommended to configure a different adapter
 # at the `config/runtime.exs`.
-config :elixir_blonk, ElixirBlonk.Mailer, adapter: Swoosh.Adapters.Local
+# config :elixir_blonk, ElixirBlonk.Mailer, adapter: Swoosh.Adapters.Local
 
 # Configure esbuild (the version is required)
 config :esbuild,
