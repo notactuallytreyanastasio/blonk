@@ -297,11 +297,23 @@ export const vibeMentionDb = {
     return result?.count || 0;
   },
 
+  getTotalMentionCount: (vibeName: string): number => {
+    const stmt = db.prepare(`
+      SELECT COUNT(*) as count 
+      FROM vibe_mentions 
+      WHERE vibe_name = ?
+    `);
+    
+    const result = stmt.get(vibeName) as { count: number };
+    return result?.count || 0;
+  },
+
   getEmergingVibes: () => {
     const stmt = db.prepare(`
       SELECT 
         vm.vibe_name,
         COUNT(DISTINCT vm.mentioned_by_did) as mention_count,
+        COUNT(*) as total_mention_count,
         MIN(vm.mentioned_at) as first_mentioned,
         MAX(vm.mentioned_at) as last_mentioned
       FROM vibe_mentions vm
@@ -314,9 +326,13 @@ export const vibeMentionDb = {
     return stmt.all().map(row => ({
       vibeName: row.vibe_name,
       mentionCount: row.mention_count,
+      totalMentionCount: row.total_mention_count,
       firstMentioned: row.first_mentioned,
       lastMentioned: row.last_mentioned,
-      progress: (row.mention_count / 5) * 100, // 5 is the threshold
+      progress: Math.max(
+        (row.mention_count / 5) * 100,  // 5 unique mentions
+        (row.total_mention_count / 10) * 100  // OR 10 total mentions
+      ),
     }));
   },
 

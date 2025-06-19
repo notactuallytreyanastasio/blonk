@@ -3,7 +3,8 @@ import { VibeManager } from './vibes';
 import { vibeMentionDb, vibeDb } from './database';
 import { extractVibeFromHashtag, normalizeVibeName } from './utils/vibe-validation';
 
-const VIBE_CREATION_THRESHOLD = 5; // Number of unique users needed to create a vibe
+const UNIQUE_MENTION_THRESHOLD = 5; // Number of unique users needed to create a vibe
+const TOTAL_MENTION_THRESHOLD = 10; // OR total number of mentions needed
 
 export class VibeMonitor {
   private agent: BskyAgent;
@@ -31,18 +32,19 @@ export class VibeMonitor {
       return;
     }
 
-    // Check if we've hit the threshold
-    const mentionCount = vibeMentionDb.getMentionCount(vibeName);
-    console.log(`📊 Vibe "${vibeName}" has ${mentionCount} unique mentions`);
+    // Check if we've hit either threshold
+    const uniqueMentionCount = vibeMentionDb.getMentionCount(vibeName);
+    const totalMentionCount = vibeMentionDb.getTotalMentionCount(vibeName);
+    console.log(`📊 Vibe "${vibeName}" has ${uniqueMentionCount} unique mentions, ${totalMentionCount} total mentions`);
 
-    if (mentionCount >= VIBE_CREATION_THRESHOLD) {
-      await this.createVibeFromHashtag(vibeName, mentionCount);
+    if (uniqueMentionCount >= UNIQUE_MENTION_THRESHOLD || totalMentionCount >= TOTAL_MENTION_THRESHOLD) {
+      await this.createVibeFromHashtag(vibeName, uniqueMentionCount, totalMentionCount);
     }
   }
 
-  private async createVibeFromHashtag(vibeName: string, mentionCount: number) {
+  private async createVibeFromHashtag(vibeName: string, uniqueMentions: number, totalMentions: number) {
     try {
-      console.log(`🎉 Creating new vibe "${vibeName}" after ${mentionCount} mentions!`);
+      console.log(`🎉 Creating new vibe "${vibeName}" after ${uniqueMentions} unique mentions (${totalMentions} total)!`);
 
       // Generate a mood based on the vibe name
       const mood = this.generateMood(vibeName);
@@ -64,7 +66,7 @@ export class VibeMonitor {
         mood,
         emoji: '🌊',
         color: '#7B68EE',
-        memberCount: mentionCount,
+        memberCount: uniqueMentions,
         createdAt: new Date().toISOString(),
       });
 

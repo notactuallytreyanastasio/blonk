@@ -21,7 +21,7 @@ export function Emerging() {
       </h2>
       
       <div className="emerging-info">
-        <p>These vibes are gaining momentum. When 5 unique users mention a vibe, it materializes!</p>
+        <p>These vibes are gaining momentum. A vibe materializes when it reaches 5 unique users OR 10 total mentions!</p>
       </div>
 
       {emergingVibes && emergingVibes.length > 0 ? (
@@ -33,7 +33,7 @@ export function Emerging() {
                   #vibe-{vibe.vibeName}
                 </h3>
                 <div className="emerging-meta">
-                  {vibe.mentionCount}/5 mentions
+                  {vibe.mentionCount}/5 unique ({vibe.totalMentionCount}/10 total)
                 </div>
               </div>
               
