@@ -43,3 +43,48 @@ Date:   Thu Jun 19 09:53:56 2025 -0400
 I guess now I'm just going to see what Claude has cooked up?
 
 Once we have some shit on a screen I can think a little more.
+
+## The Story So Far
+We have a very basic setup that will in fact put something on atproto.
+
+We made a pull request [here](https://github.com/notactuallytreyanastasio/blonk/pull/1) that got us the basics.
+
+So what next?
+
+Well, first I am going to drop in React.
+
+```
+lets just drop in react, we will need it later anyways.
+let's be adults about it. make sure to use the latest, and to do whatever dan abramov would do.
+He's pretty good.
+```
+
+This ought to go pretty far, but we will follow up in another pull request.
+
+[Here] is the pull request.
+
+I am not going to give it a ton of feedback since React isn't really my lane, unless something really jumps out.
+
+I had to have a little back and forth, but we got to something running pretty quickly.
+
+## What now?
+Well, right now it only shows blips _from us_ -- we want to see other people's too and let them submit as well.
+
+How do we go about that? 
+Well I am not sure yet.
+
+Let's dig into some docs and ask Claude, too.
+
+Another prompt...
+
+```
+Blips need to have a "vibe" they belong to.
+"vibes" are simply a group of people and a feeling.
+Its not a topic like a subreddit or a forum.
+A vibe can be "Sunset Sunglasses Struts" or "doinkin right" or "dork nerd linkage" - we want people to not feel confined to a topic, but have an idea of the type of content that will come up in that circle.
+
+What do you think a good implementation step here is?
+```
+
+Let's see how this pans out.
+This implementation will be critical for our mental model of how we want all this to tie together.

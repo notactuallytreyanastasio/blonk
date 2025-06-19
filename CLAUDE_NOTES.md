@@ -4,6 +4,84 @@
 
 ## Session 2: Web Interface with del.icio.us Aesthetic
 
+## Session 3: Migration to React + Vite
+
+## Session 4: Multi-User Aggregation
+
+### Why This Step
+- User wanted to see everyone's blips, not just their own
+- AT Protocol is decentralized - data lives in individual repos
+- Need an aggregator to collect blips from multiple users
+
+### Implementation Details
+- **SQLite Database**: Local storage for aggregated blips
+- **Polling System**: Periodically fetches blips from known users
+- **User Tracking**: Start with self, can add more users via API
+- **Firehose Ready**: Structure supports real firehose integration later
+
+### How It Works
+1. BlipAggregator polls known users every 30 seconds
+2. Fetches their blips via AT Protocol API
+3. Stores in SQLite with author info
+4. API serves aggregated data instead of single-user data
+
+### Thoughts So Far
+**The Challenge:**
+- AT Protocol has no built-in global feed
+- The Firehose (com.atproto.sync.subscribeRepos) sends CAR files
+- Parsing CAR files is complex for a demo
+
+**Current Solution:**
+- Simple polling of known users
+- Manual user addition via API
+- Works well for small scale
+
+**Future Improvements:**
+1. **Proper Firehose**: Parse CAR files to auto-discover all blips
+2. **User Discovery**: Find users who have blips automatically
+3. **Performance**: Index optimization, caching
+4. **Federation**: Allow other Blonk instances to share data
+
+### Why This Step
+- User requested React ("let's be adults about it")
+- Dan Abramov's approach: modern tooling with Vite, React Query for server state
+- Better scalability and developer experience than server-side templates
+
+### Implementation Details
+- **Vite**: Lightning-fast dev server, modern build tool
+- **React Query**: Handles caching, loading states, background refetching
+- **React Router**: Client-side routing for SPA experience
+- **TypeScript**: Full type safety across the stack
+- Split architecture:
+  - API server on port 3001 (Express + AT Protocol)
+  - React dev server on port 5173 (Vite)
+  - Proxy configuration for seamless API calls
+
+### Thoughts So Far
+**Going Well:**
+- Clean separation of concerns (API vs UI)
+- React Query eliminates boilerplate for data fetching
+- del.icio.us aesthetic translates perfectly to React components
+- TypeScript catches errors early
+
+**Current Architecture:**
+```
+AT Protocol → Express API → React Query → React Components
+```
+
+**Potential Pitfalls:**
+1. **Bundle size**: Need to monitor as we add features
+2. **SEO**: SPA won't be crawlable without SSR
+3. **Complexity**: More moving parts than simple templates
+4. **State management**: May need Redux/Zustand for complex UI state later
+
+**Next Ideas:**
+- Add optimistic updates for fluffs
+- Implement infinite scroll for blip lists
+- Real-time updates with WebSockets
+- PWA capabilities for mobile
+- Server-side rendering with Next.js if SEO becomes important
+
 ### Why This Step
 - User wanted a web interface inspired by del.icio.us
 - del.icio.us was perfect inspiration: minimalist, content-focused, tag-based
