@@ -8,6 +8,45 @@
 
 ## Session 4: Multi-User Aggregation
 
+## Session 5: Vibes - Mood-Based Communities
+
+### Why This Step
+- User wanted "vibes" - groups based on feelings, not topics
+- Examples: "Sunset Sunglasses Struts", "doinkin right", "dork nerd linkage"
+- Revolutionary concept: organize by mood/energy, not subject matter
+
+### Implementation Details
+- **Vibe Schema**: Name, mood description, emoji, color
+- **Blips belong to Vibes**: Each blip can be posted to a vibe
+- **Membership System**: Users join vibes they resonate with
+- **Discovery by feeling**: Browse vibes by their energy, not topic
+
+### How Vibes Work
+1. Create a vibe with a name and mood
+2. Join vibes that match your energy
+3. Post blips to specific vibes
+4. Feed filtered by vibe shows only that mood
+
+### Thoughts So Far
+**Why This Is Special:**
+- Reddit/forums organize by topic (r/programming, r/gaming)
+- Vibes organize by feeling/energy/aesthetic
+- Same topic can exist in different vibes with different energies
+- "Sunset Sunglasses Struts" could have tech posts, but chill/confident
+- "dork nerd linkage" could have the same tech posts, but excited/nerdy
+
+**Design Decisions:**
+- One vibe per blip (keeps the mood focused)
+- Vibes have emojis/colors for visual identity
+- Members create the vibe, not topics
+- Discovery is about finding your people, not your interests
+
+**Future Ideas:**
+- Vibe matching: suggest vibes based on your posting style
+- Vibe moods: morning vibes vs night vibes
+- Cross-vibe echoes: share between compatible vibes
+- Vibe DJ: featured curator for each vibe
+
 ### Why This Step
 - User wanted to see everyone's blips, not just their own
 - AT Protocol is decentralized - data lives in individual repos

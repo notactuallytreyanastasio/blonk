@@ -86,5 +86,46 @@ A vibe can be "Sunset Sunglasses Struts" or "doinkin right" or "dork nerd linkag
 What do you think a good implementation step here is?
 ```
 
-Let's see how this pans out.
-This implementation will be critical for our mental model of how we want all this to tie together.
+This started off looking pretty sane, and we'll look at it more, but I had a quick piece of feedback for it.
+
+```
+lets add some constraints.
+
+we dont want duplicate vibes to be able to be created.
+
+we dont want to allow people to create vibes quite yet.
+
+We are going to make a system where instead if enough people skeet a vibe as a #hashtag then we will create one if a certain threshold is hit via the firehose if they match a special form (#vibe-YOUR_VIBE) and make sure vibes must be something like YOUR_VIBE or your_vibe or YOURVIBE but not YOUR VIBE and make sure thats enforced both react client/server/atproto client level
+```
+
+Now, we will see where this really goes.
+
+I kind of really like this idea of creating them by mention velocity.
+
+So, let's see what it has come up with now.
+
+`looks at app`
+
+It got the concept of seeding vibes right.
+
+There are 6 it seeded things with.
+
+To create a vibe, 5 people must post with #vibe-SOMETHING-OR_WHATEVER and then it will be found and counted.
+
+Once this happens, it creates the vibe so people can post in it.
+
+Once a vibe has been filled with blips, you can fluff blips with hell_yeah's or links_good's
+
+However, it didn't detect my first post.
+
+```
+I just posted #vibe-test_post and its not being detected.
+
+Are you sure you are monitoring the bluesky firehose for these hashtags and not something else?
+
+I saw it come along the wire in my other firehose monitor.
+```
+
+
+'
+
