@@ -19,7 +19,7 @@ defmodule ElixirBlonkWeb.UserSessionController do
         |> UserAuth.log_in_user(user, user_params)
         
       {:error, :invalid_credentials} ->
-        render(conn, :new, error_message: "Invalid Bluesky handle or password")
+        render(conn, :new, error_message: "Invalid handle or App Password. Make sure you're using an App Password, not your main password.")
         
       {:error, :network_error} ->
         render(conn, :new, error_message: "Unable to connect to Bluesky. Please try again.")
@@ -27,7 +27,7 @@ defmodule ElixirBlonkWeb.UserSessionController do
       {:error, reason} ->
         require Logger
         Logger.warning("ATProto authentication failed: #{inspect(reason)}")
-        render(conn, :new, error_message: "Authentication failed. Please check your credentials.")
+        render(conn, :new, error_message: "Authentication failed. Please check your handle and App Password.")
     end
   end
 

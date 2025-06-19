@@ -358,15 +358,21 @@ defmodule ElixirBlonk.Accounts do
   If the user doesn't exist, creates a new one.
   """
   def authenticate_with_atproto(handle, password) do
-    identifier = if String.contains?(handle, "@"), do: handle, else: "#{handle}.bsky.social"
+    # Handle can be: username.bsky.social, custom.domain, or email@domain.com
+    identifier = cond do
+      String.contains?(handle, "@") -> handle  # Email format
+      String.contains?(handle, ".") -> handle  # Already has domain (like bobbby.online)
+      true -> "#{handle}.bsky.social"         # Just username, add .bsky.social
+    end
+    
+    require Logger
+    Logger.info("Attempting ATProto authentication with identifier: #{identifier}")
     
     case ElixirBlonk.ATProto.Client.create_session(identifier, password) do
       {:ok, %{client: client, session: session}} ->
         # Try to get user profile for additional info
-        profile_data = case get_atproto_profile(client, session.did) do
-          {:ok, profile} -> profile
-          {:error, _} -> %{}
-        end
+        # Get profile data (our get_profile always returns {:ok, profile})
+        {:ok, profile_data} = get_atproto_profile(client, session.did)
         
         user_attrs = %{
           did: session.did,

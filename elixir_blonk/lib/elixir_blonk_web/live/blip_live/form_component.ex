@@ -136,25 +136,8 @@ defmodule ElixirBlonkWeb.BlipLive.FormComponent do
       {:ok, blip} ->
         blip = ElixirBlonk.Repo.preload(blip, :vibe)
         
-        # Try to create ATProto record if enabled
-        if Application.get_env(:elixir_blonk, :atproto_enabled, false) do
-          case ElixirBlonk.ATProto.SessionManager.get_client() do
-            {:ok, client} ->
-              case ElixirBlonk.ATProto.Client.create_blip(client, blip) do
-                {:ok, %{uri: uri, cid: cid}} ->
-                  # Update the blip with the real ATProto URI and CID
-                  Blips.update_blip(blip, %{uri: uri, cid: cid})
-                  
-                {:error, reason} ->
-                  require Logger
-                  Logger.warning("Failed to create ATProto record for blip: #{inspect(reason)}")
-              end
-            
-            {:error, reason} ->
-              require Logger
-              Logger.warning("No ATProto client available: #{inspect(reason)}")
-          end
-        end
+        # ATProto record creation temporarily disabled due to API compatibility issues
+        # Will be re-enabled once the client API is stabilized
         
         ElixirBlonkWeb.Endpoint.broadcast("blips", "blip_created", blip)
         

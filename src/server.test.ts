@@ -157,7 +157,7 @@ describe('Blonk Server Unit Tests', () => {
       const body = 'Test Body';
       const url = 'https://example.com';
       const tags = ['tag1', 'tag2'];
-      const vibe = 'at://vibe/uri';
+      const vibe = { uri: 'at://vibe/uri', cid: 'vibecid123', name: 'Test Vibe' };
 
       const uri = await mockBlipManager.createBlip(title, body, url, tags, vibe);
 

@@ -181,13 +181,17 @@ defmodule ElixirBlonk.ATProto.Client do
     repo = extract_did_from_client(client) || "did:plc:default"
     
     case ATProto.create_record(client, repo, collection, record) do
-      {:ok, %{uri: uri, cid: _cid}} = response ->
+      {:ok, %{"uri" => uri, "cid" => cid} = response} ->
         Logger.info("Created #{collection} record: #{uri}")
-        response
+        {:ok, %{uri: uri, cid: cid}}
       
       {:error, reason} = error ->
         Logger.error("Failed to create record: #{inspect(reason)}")
         error
+        
+      unexpected ->
+        Logger.error("Unexpected ATProto response: #{inspect(unexpected)}")
+        {:error, :unexpected_response}
     end
   end
 
@@ -195,13 +199,17 @@ defmodule ElixirBlonk.ATProto.Client do
     repo = session.did
     
     case ATProto.create_record(client, repo, collection, record) do
-      {:ok, %{uri: uri, cid: _cid}} = response ->
+      {:ok, %{"uri" => uri, "cid" => cid} = response} ->
         Logger.info("Created #{collection} record: #{uri}")
-        response
+        {:ok, %{uri: uri, cid: cid}}
       
       {:error, reason} = error ->
         Logger.error("Failed to create record: #{inspect(reason)}")
         error
+        
+      unexpected ->
+        Logger.error("Unexpected ATProto response: #{inspect(unexpected)}")
+        {:error, :unexpected_response}
     end
   end
 

@@ -4,15 +4,19 @@
       <div class="text-2xl text-gray-700">transmit your frequency</div>
       <:subtitle>
         <div class="text-gray-600 mt-2">
-          Use your Bluesky credentials to access the radar
+          Connect securely with your Bluesky App Password
+        </div>
+        <div class="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mt-4 text-sm">
+          🔒 <strong>Security Notice:</strong> Never use your main Bluesky password. 
+          <br />Create a secure App Password in your Bluesky settings.
         </div>
       </:subtitle>
     </.header>
 
     <.simple_form :let={f} for={@conn.params["user"]} as={:user} action={~p"/users/log_in"} class="space-y-6">
-      <.error :if={@error_message} class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+      <div :if={@error_message} class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
         {String.replace(@error_message, "email", "handle")}
-      </.error>
+      </div>
 
       <div>
         <label class="block text-gray-700 text-sm font-medium mb-3">Bluesky Handle</label>
@@ -23,19 +27,25 @@
       </div>
       
       <div>
-        <label class="block text-gray-700 text-sm font-medium mb-3">Password</label>
-        <.input field={f[:password]} type="password" placeholder="Your Bluesky password" 
-               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+        <label class="block text-gray-700 text-sm font-medium mb-3">App Password</label>
+        <.input field={f[:password]} type="password" placeholder="xxxx-xxxx-xxxx-xxxx" 
+               class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono" 
                required />
-        <div class="text-xs text-gray-500 mt-2">Use your Bluesky account password</div>
+        <div class="text-xs text-gray-500 mt-2">
+          <strong>Important:</strong> Use an <strong>App Password</strong>, not your main password.
+          <br />
+          <a href="https://bsky.app/settings/app-passwords" target="_blank" class="text-blue-600 hover:underline">
+            Generate an App Password in Bluesky Settings →
+          </a>
+        </div>
       </div>
 
       <:actions :let={f}>
         <div class="flex items-center justify-between">
           <.input field={f[:remember_me]} type="checkbox" label="Keep me logged in" class="text-sm" />
           <div class="text-sm text-gray-600">
-            Need a Bluesky account? 
-            <a href="https://bsky.app" target="_blank" class="text-blue-600 hover:underline">Sign up here</a>
+            Need help? 
+            <a href="https://bsky.app/settings/app-passwords" target="_blank" class="text-blue-600 hover:underline">App Password Guide</a>
           </div>
         </div>
       </:actions>

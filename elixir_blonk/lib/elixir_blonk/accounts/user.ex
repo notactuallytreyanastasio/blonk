@@ -80,7 +80,7 @@ defmodule ElixirBlonk.Accounts.User do
       |> validate_length(:password, max: 72, count: :bytes)
       # Hashing could be done with `Ecto.Changeset.prepare_changes/2`, but that
       # would keep the database transaction open longer and hurt performance.
-      |> put_change(:hashed_password, Bcrypt.Base.hash_pwd_salt(password))
+      |> put_change(:hashed_password, Bcrypt.hash_pwd_salt(password))
       |> delete_change(:password)
     else
       changeset
@@ -147,11 +147,11 @@ defmodule ElixirBlonk.Accounts.User do
   """
   def valid_password?(%ElixirBlonk.Accounts.User{hashed_password: hashed_password}, password)
       when is_binary(hashed_password) and byte_size(password) > 0 do
-    Bcrypt.Base.verify_pass(password, hashed_password)
+    Bcrypt.verify_pass(password, hashed_password)
   end
 
   def valid_password?(_, _) do
-    Bcrypt.Base.no_user_verify()
+    Bcrypt.no_user_verify()
     false
   end
 
