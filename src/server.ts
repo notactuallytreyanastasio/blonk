@@ -1,83 +1,165 @@
 import express from 'express';
-import session from 'express-session';
-import expressLayouts from 'express-ejs-layouts';
-import path from 'path';
+import cors from 'cors';
 import { BlonkAgent } from './agent';
 import { BlipManager } from './blips';
+import { VibeManager } from './vibes';
+import { BlipAggregator } from './firehose';
+import { SearchMonitor } from './search-monitor';
+import { blipDb, vibeDb, vibeMentionDb } from './database';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '../views'));
-app.use(expressLayouts);
-app.set('layout', 'layout');
-app.use(express.static(path.join(__dirname, '../public')));
-app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 app.use(express.json());
-
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'blonk-secret-key',
-  resave: false,
-  saveUninitialized: true,
-}));
 
 let agent: BlonkAgent;
 let blipManager: BlipManager;
+let vibeManager: VibeManager;
+let aggregator: BlipAggregator;
+let searchMonitor: SearchMonitor;
 
 async function initializeAgent() {
   agent = new BlonkAgent();
   await agent.login();
   blipManager = new BlipManager(agent.getAgent());
+  vibeManager = new VibeManager(agent.getAgent());
+  
+  // Start aggregating blips from all users
+  aggregator = new BlipAggregator(agent.getAgent());
+  aggregator.startPolling(30000); // Poll every 30 seconds
+  
+  // Start searching for #vibe-* hashtags on Bluesky
+  searchMonitor = new SearchMonitor(agent.getAgent());
+  await searchMonitor.start();
+  
   console.log('✅ Connected to AT Protocol');
+  console.log('📡 Starting blip aggregation...');
+  console.log('🔍 Searching Bluesky for #vibe-* hashtags every 2 minutes...');
 }
 
-app.get('/', async (req, res) => {
+app.get('/api/blips', async (req, res) => {
   try {
-    const blips = await blipManager.getBlips(50);
-    res.render('index', { blips, user: req.session.user });
+    // Get aggregated blips from all users
+    const blips = blipDb.getBlips(50);
+    res.json({ blips });
   } catch (error) {
     console.error('Error fetching blips:', error);
-    res.render('index', { blips: [], user: req.session.user });
+    res.status(500).json({ error: 'Failed to fetch blips' });
   }
 });
 
-app.get('/submit', (req, res) => {
-  res.render('submit', { user: req.session.user });
-});
 
-app.post('/submit', async (req, res) => {
+app.post('/api/blips', async (req, res) => {
   try {
-    const { title, url, body, tags } = req.body;
-    const tagArray = tags ? tags.split(' ').filter((t: string) => t.length > 0) : [];
+    const { title, url, body, tags, vibe } = req.body;
+    const tagArray = tags || [];
     
-    await blipManager.createBlip(title, body, url, tagArray);
-    res.redirect('/');
+    const uri = await blipManager.createBlip(title, body, url, tagArray, vibe);
+    res.json({ success: true, uri });
   } catch (error) {
     console.error('Error creating blip:', error);
-    res.render('submit', { error: 'Failed to create blip', user: req.session.user });
+    res.status(500).json({ error: 'Failed to create blip' });
   }
 });
 
-app.get('/tag/:tag', async (req, res) => {
+// Get all vibes
+app.get('/api/vibes', async (req, res) => {
   try {
-    const allBlips = await blipManager.getBlips(100);
-    const taggedBlips = allBlips.filter(blip => 
-      blip.tags?.includes(req.params.tag)
-    );
-    res.render('tag', { blips: taggedBlips, tag: req.params.tag, user: req.session.user });
+    const vibes = vibeDb.getVibes(50);
+    res.json({ vibes });
+  } catch (error) {
+    console.error('Error fetching vibes:', error);
+    res.status(500).json({ error: 'Failed to fetch vibes' });
+  }
+});
+
+// Get emerging vibes
+app.get('/api/vibes/emerging', async (req, res) => {
+  try {
+    const emergingVibes = vibeMentionDb.getEmergingVibes();
+    res.json({ emergingVibes });
+  } catch (error) {
+    console.error('Error fetching emerging vibes:', error);
+    res.status(500).json({ error: 'Failed to fetch emerging vibes' });
+  }
+});
+
+// Get blips for a specific vibe
+app.get('/api/vibes/:vibeUri/blips', async (req, res) => {
+  try {
+    const blips = blipDb.getBlipsByVibe(req.params.vibeUri);
+    res.json({ blips });
+  } catch (error) {
+    console.error('Error fetching vibe blips:', error);
+    res.status(500).json({ error: 'Failed to fetch vibe blips' });
+  }
+});
+
+// Vibe creation is now disabled - vibes are created through viral hashtags
+app.post('/api/vibes', async (req, res) => {
+  res.status(403).json({ 
+    error: 'Manual vibe creation is disabled. Vibes are created when #vibe-YOUR_VIBE reaches 5 unique mentions.' 
+  });
+});
+
+// Join a vibe
+app.post('/api/vibes/:vibeUri/join', async (req, res) => {
+  try {
+    const { cid } = req.body;
+    await vibeManager.joinVibe(req.params.vibeUri, cid);
+    vibeDb.addMember(req.params.vibeUri, agent.getAgent().session?.did!);
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error joining vibe:', error);
+    res.status(500).json({ error: 'Failed to join vibe' });
+  }
+});
+
+// Manual search trigger
+app.post('/api/vibes/search', async (req, res) => {
+  try {
+    console.log('Manual vibe search triggered...');
+    await searchMonitor.searchForVibeMentions();
+    res.json({ success: true, message: 'Search completed' });
+  } catch (error) {
+    console.error('Error searching for vibes:', error);
+    res.status(500).json({ error: 'Failed to search for vibes' });
+  }
+});
+
+app.get('/api/blips/tag/:tag', async (req, res) => {
+  try {
+    const taggedBlips = blipDb.getBlipsByTag(req.params.tag);
+    res.json({ blips: taggedBlips, tag: req.params.tag });
   } catch (error) {
     console.error('Error fetching tagged blips:', error);
-    res.render('tag', { blips: [], tag: req.params.tag, user: req.session.user });
+    res.status(500).json({ error: 'Failed to fetch tagged blips' });
+  }
+});
+
+// Add endpoint to follow new users
+app.post('/api/follow', async (req, res) => {
+  try {
+    const { did } = req.body;
+    if (!did) {
+      return res.status(400).json({ error: 'DID required' });
+    }
+    
+    aggregator.addUser(did);
+    res.json({ success: true, message: `Now following ${did}` });
+  } catch (error) {
+    console.error('Error following user:', error);
+    res.status(500).json({ error: 'Failed to follow user' });
   }
 });
 
 initializeAgent().then(() => {
   app.listen(PORT, () => {
-    console.log(`🌐 Blonk server running at http://localhost:${PORT}`);
+    console.log(`🚀 Blonk API server running at http://localhost:${PORT}`);
   });
 }).catch(error => {
   console.error('Failed to initialize:', error);

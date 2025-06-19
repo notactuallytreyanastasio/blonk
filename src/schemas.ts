@@ -1,22 +1,46 @@
 export const BLIP_NSID = 'com.blonk.blip';
-export const FLUFF_NSID = 'com.blonk.fluff';
+export const GROOVE_NSID = 'com.blonk.groove';
 export const COMMENT_NSID = 'com.blonk.comment';
+export const VIBE_NSID = 'com.blonk.vibe';
+export const VIBE_MEMBER_NSID = 'com.blonk.vibeMember';
+
+export interface BlonkVibe {
+  name: string;
+  mood: string;
+  emoji?: string;
+  color?: string;
+  createdAt: string;
+  memberCount: number;
+}
+
+export interface BlonkVibeMember {
+  vibe: {
+    uri: string;
+    cid: string;
+  };
+  createdAt: string;
+}
 
 export interface BlonkBlip {
   title: string;
   body?: string;
   url?: string;
   tags?: string[];
+  vibe?: {
+    uri: string;
+    cid: string;
+    name?: string; // denormalized for display
+  };
   createdAt: string;
-  fluffs: number;
+  grooves: number;
 }
 
-export interface BlonkFluff {
+export interface BlonkGroove {
   subject: {
     uri: string;
     cid: string;
   };
-  direction: 'up' | 'down';
+  grooveType: 'looks_good' | 'shit_rips';
   createdAt: string;
 }
 
