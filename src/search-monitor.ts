@@ -29,10 +29,12 @@ export class SearchMonitor {
       
       // Search for posts containing #vibe-
       const searchResponse = await this.agent.app.bsky.feed.searchPosts({
-        q: '#vibe-',
-        limit: 50,
+        q: 'vibe-',
+        limit: 100,
       });
 
+      console.log(`Search returned ${searchResponse.data.posts.length} posts`);
+      
       let newMentions = 0;
       
       for (const post of searchResponse.data.posts) {
