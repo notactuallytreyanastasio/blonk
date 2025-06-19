@@ -1,0 +1,31 @@
+<h2 class="page-title">transmit a new blip</h2>
+
+<form action="/submit" method="POST" class="submit-form">
+    <div class="form-group">
+        <label for="title">signal</label>
+        <input type="text" id="title" name="title" required placeholder="What's on the radar?">
+    </div>
+    
+    <div class="form-group">
+        <label for="url">frequency (optional)</label>
+        <input type="url" id="url" name="url" placeholder="https://...">
+        <div class="form-note">link to external content</div>
+    </div>
+    
+    <div class="form-group">
+        <label for="body">transmission details (optional)</label>
+        <textarea id="body" name="body" placeholder="Additional context or thoughts..."></textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="tags">tags</label>
+        <input type="text" id="tags" name="tags" placeholder="space separated tags">
+        <div class="form-note">e.g., programming atproto bluesky</div>
+    </div>
+    
+    <% if (locals.error) { %>
+        <div style="color: red; margin-bottom: 10px;"><%= error %></div>
+    <% } %>
+    
+    <button type="submit" class="submit-button">transmit blip</button>
+</form>

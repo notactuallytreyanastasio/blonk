@@ -1,0 +1,42 @@
+<h2 class="page-title">blips tagged: <%= tag %></h2>
+
+<div class="blip-list">
+    <% if (blips.length === 0) { %>
+        <div class="empty-state">
+            <p>No blips with this tag detected.</p>
+            <p><a href="/">Back to all blips</a></p>
+        </div>
+    <% } else { %>
+        <% blips.forEach(blip => { %>
+            <div class="blip-item">
+                <div class="blip-fluffs">
+                    <%= blip.fluffs %>
+                </div>
+                <div class="blip-content">
+                    <% if (blip.url) { %>
+                        <a href="<%= blip.url %>" class="blip-title" target="_blank"><%= blip.title %></a>
+                    <% } else { %>
+                        <span class="blip-title"><%= blip.title %></span>
+                    <% } %>
+                    
+                    <% if (blip.body) { %>
+                        <div style="color: #666; font-size: 10px; margin-top: 2px;">
+                            <%= blip.body.substring(0, 200) %><%= blip.body.length > 200 ? '...' : '' %>
+                        </div>
+                    <% } %>
+                    
+                    <div class="blip-meta">
+                        <span><%= new Date(blip.createdAt).toLocaleString() %></span>
+                        <% if (blip.tags && blip.tags.length > 0) { %>
+                            <span class="blip-tags">
+                                <% blip.tags.forEach(tag => { %>
+                                    <a href="/tag/<%= tag %>" class="tag"><%= tag %></a>
+                                <% }) %>
+                            </span>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        <% }) %>
+    <% } %>
+</div>
