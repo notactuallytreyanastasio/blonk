@@ -126,6 +126,28 @@ Are you sure you are monitoring the bluesky firehose for these hashtags and not 
 I saw it come along the wire in my other firehose monitor.
 ```
 
+It wasn't detecting my vibes and tried to take some shortcuts.
 
-'
+So, I had it re-think that approach.
+
+
+```
+its failing to detect emerging vibes and we have no server logs indicating this.
+
+that is troublesome.
+
+we need to hash out if this firehose is even working and you are just making willy error handlers that cover important flaws in the system.
+
+Why is it using a search to find the vibes? We should be consuming the entire firehose!
+```
+
+And then
+
+```
+We should be defining types for all this incoming data!
+
+This is becoming incredibly hard to reason about and we still arent monitoring the firehose successfully
+```
+
+And some manual editing, comments left for it to eat up, let's see where it gets.
 
