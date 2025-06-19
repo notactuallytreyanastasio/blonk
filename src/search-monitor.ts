@@ -36,10 +36,18 @@ export class SearchMonitor {
       console.log(`Search returned ${searchResponse.data.posts.length} posts`);
       
       let newMentions = 0;
+      let debugCount = 0;
       
       for (const post of searchResponse.data.posts) {
-        const text = post.record.text;
+        const record = post.record as any;
+        const text = record?.text;
         const authorDid = post.author.did;
+        
+        // Debug first few posts
+        if (debugCount < 3 && text && text.includes('vibe-')) {
+          console.log(`Debug: Post text contains 'vibe-': "${text.substring(0, 150)}"`);
+          debugCount++;
+        }
         
         if (text && text.includes('#vibe-')) {
           console.log(`Found #vibe-* mention by @${post.author.handle}: "${text.substring(0, 100)}..."`);

@@ -34,9 +34,10 @@ class SearchMonitor {
                 console.log('🔎 Searching Bluesky for #vibe-* mentions...');
                 // Search for posts containing #vibe-
                 const searchResponse = yield this.agent.app.bsky.feed.searchPosts({
-                    q: '#vibe-',
-                    limit: 50,
+                    q: 'vibe-',
+                    limit: 100,
                 });
+                console.log(`Search returned ${searchResponse.data.posts.length} posts`);
                 let newMentions = 0;
                 for (const post of searchResponse.data.posts) {
                     const text = post.record.text;

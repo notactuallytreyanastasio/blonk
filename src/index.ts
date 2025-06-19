@@ -30,7 +30,7 @@ async function main() {
       if (blip.body) console.log(`   ${blip.body.substring(0, 100)}...`);
       if (blip.url) console.log(`   🔗 ${blip.url}`);
       console.log(`   📅 ${new Date(blip.createdAt).toLocaleString()}`);
-      console.log(`   ✨ ${blip.fluffs} fluffs`);
+      console.log(`   ✨ ${blip.grooves} grooves`);
     });
 
   } catch (error) {

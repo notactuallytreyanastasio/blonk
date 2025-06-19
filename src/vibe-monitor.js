@@ -13,7 +13,8 @@ exports.VibeMonitor = void 0;
 const vibes_1 = require("./vibes");
 const database_1 = require("./database");
 const vibe_validation_1 = require("./utils/vibe-validation");
-const VIBE_CREATION_THRESHOLD = 5; // Number of unique users needed to create a vibe
+const UNIQUE_MENTION_THRESHOLD = 5; // Number of unique users needed to create a vibe
+const TOTAL_MENTION_THRESHOLD = 10; // OR total number of mentions needed
 class VibeMonitor {
     constructor(agent) {
         this.agent = agent;
@@ -33,18 +34,19 @@ class VibeMonitor {
                 console.log(`✅ Vibe "${vibeName}" already exists`);
                 return;
             }
-            // Check if we've hit the threshold
-            const mentionCount = database_1.vibeMentionDb.getMentionCount(vibeName);
-            console.log(`📊 Vibe "${vibeName}" has ${mentionCount} unique mentions`);
-            if (mentionCount >= VIBE_CREATION_THRESHOLD) {
-                yield this.createVibeFromHashtag(vibeName, mentionCount);
+            // Check if we've hit either threshold
+            const uniqueMentionCount = database_1.vibeMentionDb.getMentionCount(vibeName);
+            const totalMentionCount = database_1.vibeMentionDb.getTotalMentionCount(vibeName);
+            console.log(`📊 Vibe "${vibeName}" has ${uniqueMentionCount} unique mentions, ${totalMentionCount} total mentions`);
+            if (uniqueMentionCount >= UNIQUE_MENTION_THRESHOLD || totalMentionCount >= TOTAL_MENTION_THRESHOLD) {
+                yield this.createVibeFromHashtag(vibeName, uniqueMentionCount, totalMentionCount);
             }
         });
     }
-    createVibeFromHashtag(vibeName, mentionCount) {
+    createVibeFromHashtag(vibeName, uniqueMentions, totalMentions) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                console.log(`🎉 Creating new vibe "${vibeName}" after ${mentionCount} mentions!`);
+                console.log(`🎉 Creating new vibe "${vibeName}" after ${uniqueMentions} unique mentions (${totalMentions} total)!`);
                 // Generate a mood based on the vibe name
                 const mood = this.generateMood(vibeName);
                 // Create the vibe
@@ -60,7 +62,7 @@ class VibeMonitor {
                     mood,
                     emoji: '🌊',
                     color: '#7B68EE',
-                    memberCount: mentionCount,
+                    memberCount: uniqueMentions,
                     createdAt: new Date().toISOString(),
                 });
                 console.log(`✨ Vibe "${vibeName}" created successfully!`);

@@ -11,15 +11,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FixedFirehoseMonitor = void 0;
 const ws_1 = require("ws");
-const common_1 = require("@atproto/common");
+const cbor_x_1 = require("cbor-x");
 const repo_1 = require("@atproto/repo");
 const vibe_monitor_1 = require("./vibe-monitor");
-// Frame types based on AT Protocol spec
-var FrameType;
-(function (FrameType) {
-    FrameType[FrameType["Message"] = 1] = "Message";
-    FrameType[FrameType["Error"] = -1] = "Error";
-})(FrameType || (FrameType = {}));
 class FixedFirehoseMonitor {
     constructor(agent) {
         this.ws = null;
@@ -32,7 +26,7 @@ class FixedFirehoseMonitor {
     }
     start() {
         return __awaiter(this, void 0, void 0, function* () {
-            console.log('🔥 Starting FIXED Bluesky Firehose monitoring for #vibe-* hashtags...');
+            console.log('🔥 Starting fixed Bluesky Firehose monitoring for #vibe-* hashtags...');
             const firehoseUrl = 'wss://bsky.network/xrpc/com.atproto.sync.subscribeRepos';
             console.log(`🔗 Connecting to: ${firehoseUrl}`);
             this.ws = new ws_1.WebSocket(firehoseUrl);
@@ -43,49 +37,33 @@ class FixedFirehoseMonitor {
                 this.errorCount = 0;
                 // Log stats every 30 seconds
                 this.statsInterval = setInterval(() => {
-                    console.log(`📊 Firehose stats: ${this.messageCount} messages, ${this.vibeDetectionCount} #vibe-* detections, ${this.errorCount} errors`);
+                    console.log(`📊 Firehose stats: ${this.messageCount} messages processed, ${this.vibeDetectionCount} #vibe-* detections, ${this.errorCount} errors`);
                 }, 30000);
             });
             this.ws.on('message', (data) => __awaiter(this, void 0, void 0, function* () {
                 this.messageCount++;
                 try {
-                    // Decode the frame structure
-                    const frame = this.decodeFrame(new Uint8Array(data));
-                    if (!frame) {
-                        return;
-                    }
-                    // Handle different message types
-                    switch (frame.body.$type) {
-                        case 'com.atproto.sync.subscribeRepos#commit':
-                            yield this.handleCommit(frame.body);
-                            break;
-                        case 'com.atproto.sync.subscribeRepos#error':
-                            console.error('Firehose error:', frame.body.error, frame.body.message);
-                            this.errorCount++;
-                            break;
-                        case 'com.atproto.sync.subscribeRepos#info':
-                            console.log('Firehose info:', frame.body.name, frame.body.message);
-                            break;
-                        default:
-                            // Unknown message type
-                            if (this.messageCount % 1000 === 0) {
-                                console.log(`Unknown message type: ${frame.body.$type}`);
-                            }
+                    // AT Protocol uses framed messages
+                    // First decode the frame header
+                    const [header, remainder] = this.decodeVarint(data);
+                    // Then decode the actual message
+                    const messageBytes = data.slice(data.length - remainder);
+                    const message = (0, cbor_x_1.decode)(messageBytes);
+                    // Handle commit messages
+                    if (message && message.$type === 'com.atproto.sync.subscribeRepos#commit') {
+                        yield this.handleCommit(message);
                     }
                 }
                 catch (error) {
                     // Only log every 100th error to avoid spam
                     if (this.errorCount % 100 === 0) {
-                        console.error('Error processing firehose message:', error);
+                        console.error('Error processing message:', error);
                     }
                     this.errorCount++;
                 }
             }));
             this.ws.on('error', (error) => {
                 console.error('❌ Firehose WebSocket error:', error.message);
-                if (error.code) {
-                    console.error('   Error code:', error.code);
-                }
             });
             this.ws.on('close', (code, reason) => {
                 console.log(`🔌 Firehose disconnected: Code ${code}${reason ? `, Reason: ${reason}` : ''}`);
@@ -98,57 +76,36 @@ class FixedFirehoseMonitor {
             });
         });
     }
-    decodeFrame(bytes) {
-        try {
-            // Decode multiple CBOR items (header and body)
-            const decoded = (0, common_1.cborDecodeMulti)(bytes);
-            if (decoded.length < 2) {
-                throw new Error('Frame must have at least header and body');
-            }
-            const header = decoded[0];
-            const body = decoded[1];
-            // Validate header
-            if (!header || typeof header.op !== 'number') {
-                throw new Error('Invalid frame header');
-            }
-            // Handle message frames
-            if (header.op === FrameType.Message) {
-                // Add the $type field based on the header type
-                if (body && typeof body === 'object' && header.t) {
-                    body.$type = header.t.startsWith('#')
-                        ? `com.atproto.sync.subscribeRepos${header.t}`
-                        : header.t;
-                }
-                return { header, body };
-            }
-            // Handle error frames
-            if (header.op === FrameType.Error) {
-                return { header, body };
-            }
-            throw new Error(`Unknown frame type: ${header.op}`);
-        }
-        catch (error) {
-            if (this.errorCount % 100 === 0) {
-                console.error('Error decoding frame:', error);
-            }
-            return null;
-        }
+    decodeVarint(buf) {
+        let value = 0;
+        let shift = 0;
+        let byte;
+        let i = 0;
+        do {
+            byte = buf[i++];
+            value |= (byte & 0x7f) << shift;
+            shift += 7;
+        } while (byte & 0x80);
+        return [value, buf.length - i];
     }
     handleCommit(commit) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
+                if (!commit.blocks)
+                    return;
                 // Parse the CAR file from blocks
                 const car = yield (0, repo_1.readCar)(commit.blocks);
                 // Process each operation
-                for (const op of commit.ops) {
+                for (const op of commit.ops || []) {
                     // We only care about post creates
-                    if (op.action === 'create' && op.path.includes('app.bsky.feed.post')) {
+                    if (op.action === 'create' && ((_a = op.path) === null || _a === void 0 ? void 0 : _a.includes('app.bsky.feed.post'))) {
                         try {
-                            // Get the record bytes from the CAR file using the operation's CID
+                            // Get the record bytes from the CAR file
                             const recordBytes = car.blocks.get(op.cid);
                             if (!recordBytes)
                                 continue;
-                            // Convert CBOR to lexicon record
+                            // Convert CBOR to record
                             const record = (0, repo_1.cborToLexRecord)(recordBytes);
                             // Check for #vibe- hashtags
                             if (record.text && typeof record.text === 'string' && record.text.toLowerCase().includes('#vibe-')) {
@@ -164,9 +121,9 @@ class FixedFirehoseMonitor {
                             }
                         }
                         catch (e) {
-                            // Record-specific error, don't spam logs
+                            // Record-specific error
                             if (this.errorCount % 100 === 0) {
-                                console.error('Error processing post record:', e);
+                                console.error('Error processing record:', e);
                             }
                             this.errorCount++;
                         }
@@ -176,7 +133,7 @@ class FixedFirehoseMonitor {
             catch (error) {
                 // CAR parsing error
                 if (this.errorCount % 100 === 0) {
-                    console.error('Error parsing CAR file:', error);
+                    console.error('Error handling commit:', error);
                 }
                 this.errorCount++;
             }

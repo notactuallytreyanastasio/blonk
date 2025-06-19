@@ -18,7 +18,7 @@ export class BlipManager {
       tags,
       vibe,
       createdAt: new Date().toISOString(),
-      fluffs: 0,
+      grooves: 0,
     };
 
     const response = await this.agent.com.atproto.repo.createRecord({

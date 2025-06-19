@@ -7,6 +7,8 @@ exports.vibeMentionDb = exports.vibeDb = exports.blipDb = void 0;
 const better_sqlite3_1 = __importDefault(require("better-sqlite3"));
 const path_1 = __importDefault(require("path"));
 const db = new better_sqlite3_1.default(path_1.default.join(__dirname, '../blonk.db'));
+// Drop old fluffs index if it exists
+db.exec(`DROP INDEX IF EXISTS idx_blips_fluffs;`);
 // Initialize database schema
 db.exec(`
   CREATE TABLE IF NOT EXISTS blips (
@@ -21,14 +23,14 @@ db.exec(`
     tags TEXT,
     vibe_uri TEXT,
     vibe_name TEXT,
-    fluffs INTEGER DEFAULT 0,
+    grooves INTEGER DEFAULT 0,
     created_at TEXT NOT NULL,
     indexed_at TEXT DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE INDEX IF NOT EXISTS idx_blips_created_at ON blips(created_at DESC);
   CREATE INDEX IF NOT EXISTS idx_blips_author ON blips(author_did);
-  CREATE INDEX IF NOT EXISTS idx_blips_fluffs ON blips(fluffs DESC);
+  CREATE INDEX IF NOT EXISTS idx_blips_grooves ON blips(grooves DESC);
   CREATE INDEX IF NOT EXISTS idx_blips_vibe ON blips(vibe_uri);
 
   CREATE TABLE IF NOT EXISTS vibes (
@@ -64,15 +66,27 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_vibe_mentions_name ON vibe_mentions(vibe_name);
   CREATE UNIQUE INDEX IF NOT EXISTS idx_vibes_unique_name ON vibes(LOWER(name));
+
+  CREATE TABLE IF NOT EXISTS grooves (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    blip_uri TEXT NOT NULL,
+    user_did TEXT NOT NULL,
+    groove_type TEXT NOT NULL CHECK (groove_type IN ('looks_good', 'shit_rips')),
+    created_at TEXT NOT NULL,
+    UNIQUE(blip_uri, user_did)
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_grooves_blip ON grooves(blip_uri);
+  CREATE INDEX IF NOT EXISTS idx_grooves_user ON grooves(user_did);
 `);
 exports.blipDb = {
     insertBlip: (blip) => {
         const stmt = db.prepare(`
       INSERT OR REPLACE INTO blips 
-      (uri, cid, author_did, author_handle, author_display_name, title, body, url, tags, vibe_uri, vibe_name, fluffs, created_at)
+      (uri, cid, author_did, author_handle, author_display_name, title, body, url, tags, vibe_uri, vibe_name, grooves, created_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
-        stmt.run(blip.uri, blip.cid, blip.authorDid, blip.authorHandle, blip.authorDisplayName, blip.title, blip.body, blip.url, JSON.stringify(blip.tags || []), blip.vibeUri, blip.vibeName, blip.fluffs, blip.createdAt);
+        stmt.run(blip.uri, blip.cid, blip.authorDid, blip.authorHandle, blip.authorDisplayName, blip.title, blip.body, blip.url, JSON.stringify(blip.tags || []), blip.vibeUri, blip.vibeName, blip.grooves, blip.createdAt);
     },
     getBlips: (limit = 50, offset = 0) => {
         const stmt = db.prepare(`
@@ -93,7 +107,7 @@ exports.blipDb = {
             tags: JSON.parse(row.tags || '[]'),
             vibeUri: row.vibe_uri,
             vibeName: row.vibe_name,
-            fluffs: row.fluffs,
+            grooves: row.grooves,
             createdAt: row.created_at,
             indexedAt: row.indexed_at,
         }));
@@ -118,7 +132,7 @@ exports.blipDb = {
             tags: JSON.parse(row.tags || '[]'),
             vibeUri: row.vibe_uri,
             vibeName: row.vibe_name,
-            fluffs: row.fluffs,
+            grooves: row.grooves,
             createdAt: row.created_at,
             indexedAt: row.indexed_at,
         }));
@@ -143,7 +157,7 @@ exports.blipDb = {
             tags: JSON.parse(row.tags || '[]'),
             vibeUri: row.vibe_uri,
             vibeName: row.vibe_name,
-            fluffs: row.fluffs,
+            grooves: row.grooves,
             createdAt: row.created_at,
             indexedAt: row.indexed_at,
         }));
@@ -212,11 +226,21 @@ exports.vibeMentionDb = {
         const result = stmt.get(vibeName);
         return (result === null || result === void 0 ? void 0 : result.count) || 0;
     },
+    getTotalMentionCount: (vibeName) => {
+        const stmt = db.prepare(`
+      SELECT COUNT(*) as count 
+      FROM vibe_mentions 
+      WHERE vibe_name = ?
+    `);
+        const result = stmt.get(vibeName);
+        return (result === null || result === void 0 ? void 0 : result.count) || 0;
+    },
     getEmergingVibes: () => {
         const stmt = db.prepare(`
       SELECT 
         vm.vibe_name,
         COUNT(DISTINCT vm.mentioned_by_did) as mention_count,
+        COUNT(*) as total_mention_count,
         MIN(vm.mentioned_at) as first_mentioned,
         MAX(vm.mentioned_at) as last_mentioned
       FROM vibe_mentions vm
@@ -228,9 +252,12 @@ exports.vibeMentionDb = {
         return stmt.all().map(row => ({
             vibeName: row.vibe_name,
             mentionCount: row.mention_count,
+            totalMentionCount: row.total_mention_count,
             firstMentioned: row.first_mentioned,
             lastMentioned: row.last_mentioned,
-            progress: (row.mention_count / 5) * 100, // 5 is the threshold
+            progress: Math.max((row.mention_count / 5) * 100, // 5 unique mentions
+            (row.total_mention_count / 10) * 100 // OR 10 total mentions
+            ),
         }));
     },
     getVibeByName: (name) => {

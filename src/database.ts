@@ -57,11 +57,12 @@ db.exec(`
     vibe_name TEXT NOT NULL,
     mentioned_by_did TEXT NOT NULL,
     mentioned_at TEXT NOT NULL,
-    post_uri TEXT,
-    PRIMARY KEY (vibe_name, mentioned_by_did, mentioned_at)
+    post_uri TEXT NOT NULL,
+    PRIMARY KEY (vibe_name, post_uri)
   );
 
   CREATE INDEX IF NOT EXISTS idx_vibe_mentions_name ON vibe_mentions(vibe_name);
+  CREATE INDEX IF NOT EXISTS idx_vibe_mentions_author ON vibe_mentions(mentioned_by_did);
   CREATE UNIQUE INDEX IF NOT EXISTS idx_vibes_unique_name ON vibes(LOWER(name));
 
   CREATE TABLE IF NOT EXISTS grooves (
@@ -276,7 +277,7 @@ export const vibeDb = {
 };
 
 export const vibeMentionDb = {
-  trackMention: (vibeName: string, mentionedByDid: string, postUri?: string) => {
+  trackMention: (vibeName: string, mentionedByDid: string, postUri: string) => {
     const stmt = db.prepare(`
       INSERT OR IGNORE INTO vibe_mentions 
       (vibe_name, mentioned_by_did, mentioned_at, post_uri)

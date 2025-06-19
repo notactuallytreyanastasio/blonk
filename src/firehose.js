@@ -118,7 +118,7 @@ class BlipAggregator {
                             tags: blip.tags || [],
                             vibeUri: (_a = blip.vibe) === null || _a === void 0 ? void 0 : _a.uri,
                             vibeName: (_b = blip.vibe) === null || _b === void 0 ? void 0 : _b.name,
-                            fluffs: blip.fluffs || 0,
+                            grooves: blip.grooves || 0,
                             createdAt: blip.createdAt,
                         });
                     }

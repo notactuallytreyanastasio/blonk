@@ -51,7 +51,7 @@ const agent_1 = require("./agent");
 const blips_1 = require("./blips");
 const vibes_1 = require("./vibes");
 const firehose_1 = require("./firehose");
-const typed_firehose_1 = require("./typed-firehose");
+const search_monitor_1 = require("./search-monitor");
 const database_1 = require("./database");
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
@@ -63,7 +63,7 @@ let agent;
 let blipManager;
 let vibeManager;
 let aggregator;
-let firehoseMonitor;
+let searchMonitor;
 function initializeAgent() {
     return __awaiter(this, void 0, void 0, function* () {
         agent = new agent_1.BlonkAgent();
@@ -73,12 +73,12 @@ function initializeAgent() {
         // Start aggregating blips from all users
         aggregator = new firehose_1.BlipAggregator(agent.getAgent());
         aggregator.startPolling(30000); // Poll every 30 seconds
-        // Start monitoring Bluesky firehose for #vibe-* hashtags
-        firehoseMonitor = new typed_firehose_1.TypedFirehoseMonitor(agent.getAgent());
-        yield firehoseMonitor.start();
+        // Start searching for #vibe-* hashtags on Bluesky
+        searchMonitor = new search_monitor_1.SearchMonitor(agent.getAgent());
+        yield searchMonitor.start();
         console.log('✅ Connected to AT Protocol');
         console.log('📡 Starting blip aggregation...');
-        console.log('🔥 Monitoring Bluesky firehose for #vibe-* hashtags...');
+        console.log('🔍 Searching Bluesky for #vibe-* hashtags every 2 minutes...');
     });
 }
 app.get('/api/blips', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -157,12 +157,17 @@ app.post('/api/vibes/:vibeUri/join', (req, res) => __awaiter(void 0, void 0, voi
         res.status(500).json({ error: 'Failed to join vibe' });
     }
 }));
-// Manual search trigger (no longer needed with firehose)
+// Manual search trigger
 app.post('/api/vibes/search', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    res.json({
-        success: true,
-        message: 'Firehose is monitoring in real-time. Manual search not needed.'
-    });
+    try {
+        console.log('Manual vibe search triggered...');
+        yield searchMonitor.searchForVibeMentions();
+        res.json({ success: true, message: 'Search completed' });
+    }
+    catch (error) {
+        console.error('Error searching for vibes:', error);
+        res.status(500).json({ error: 'Failed to search for vibes' });
+    }
 }));
 app.get('/api/blips/tag/:tag', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {

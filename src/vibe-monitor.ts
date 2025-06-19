@@ -15,7 +15,7 @@ export class VibeMonitor {
     this.vibeManager = new VibeManager(agent);
   }
 
-  async checkPost(text: string, authorDid: string, postUri?: string) {
+  async checkPost(text: string, authorDid: string, postUri: string) {
     const vibeName = extractVibeFromHashtag(text);
     
     if (!vibeName) return;
