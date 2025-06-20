@@ -58,6 +58,30 @@ defmodule ElixirBlonk.ATProto.Client do
   end
 
   @doc """
+  Gets post details using the app.bsky.feed.getPostThread API.
+  This provides engagement metrics like reply count.
+  """
+  def get_post_engagement(%{client: _client}, post_uri) do
+    # Use Req to call the Bluesky API directly
+    url = "https://bsky.social/xrpc/app.bsky.feed.getPostThread"
+    params = %{uri: post_uri, depth: 1}
+    
+    case Req.get(url, params: params) do
+      {:ok, %Req.Response{status: 200, body: %{"thread" => thread}}} ->
+        reply_count = extract_thread_reply_count(thread)
+        {:ok, %{reply_count: reply_count}}
+      
+      {:ok, %Req.Response{status: status_code, body: body}} ->
+        Logger.error("HTTP error #{status_code} for #{post_uri}: #{inspect(body)}")
+        {:error, {:http_error, status_code}}
+      
+      {:error, reason} ->
+        Logger.error("Failed to get post engagement for #{post_uri}: #{inspect(reason)}")
+        {:error, reason}
+    end
+  end
+
+  @doc """
   Creates a vibe record in the ATProto repository.
   """
   def create_vibe(client, vibe_data) do
@@ -244,4 +268,18 @@ defmodule ElixirBlonk.ATProto.Client do
     end
   end
   defp parse_uri(_), do: {:error, :invalid_uri}
+
+  defp extract_reply_count(post_data) do
+    # ATProto records don't directly contain reply counts
+    # This would need to be implemented via separate API calls
+    get_in(post_data, ["replyCount"]) || 0
+  end
+
+  defp extract_thread_reply_count(thread) do
+    case thread do
+      %{"post" => %{"replyCount" => count}} when is_integer(count) -> count
+      %{"replies" => replies} when is_list(replies) -> length(replies)
+      _ -> 0
+    end
+  end
 end

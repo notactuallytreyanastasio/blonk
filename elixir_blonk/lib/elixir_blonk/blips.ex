@@ -192,6 +192,23 @@ defmodule ElixirBlonk.Blips do
     |> Repo.all()
   end
 
+  @doc """
+  Gets tag frequency data for a specific vibe.
+  Returns a list of {tag, count} tuples sorted by frequency.
+  """
+  def get_vibe_tag_frequency(vibe_id) do
+    blips = 
+      Blip
+      |> where([b], b.vibe_id == ^vibe_id)
+      |> select([b], b.tags)
+      |> Repo.all()
+    
+    blips
+    |> List.flatten()
+    |> Enum.frequencies()
+    |> Enum.sort_by(&elem(&1, 1), :desc)
+  end
+
   # Private functions
 
   defp extract_and_add_tags(attrs) do

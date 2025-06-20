@@ -86,10 +86,9 @@ defmodule ElixirBlonk.ATProto.SessionManager do
         {:noreply, new_state}
       
       {:error, reason} ->
-        Logger.error("Failed to initialize ATProto session: #{inspect(reason)}")
-        # Retry in 30 seconds
-        Process.send_after(self(), :init_session, 30_000)
-        {:noreply, state}
+        Logger.error("CRITICAL: Failed to initialize ATProto session: #{inspect(reason)}")
+        # This is a critical failure - the system cannot function without Bluesky authentication
+        {:stop, {:atproto_auth_failed, reason}, state}
     end
   end
 
@@ -99,10 +98,10 @@ defmodule ElixirBlonk.ATProto.SessionManager do
         schedule_refresh()
         {:noreply, new_state}
       
-      {:error, _reason} ->
-        # Keep current session and try again later
-        schedule_refresh()
-        {:noreply, state}
+      {:error, reason} ->
+        Logger.error("CRITICAL: Failed to refresh ATProto session: #{inspect(reason)}")
+        # Session refresh failure is critical - stop the process
+        {:stop, {:atproto_refresh_failed, reason}, state}
     end
   end
 

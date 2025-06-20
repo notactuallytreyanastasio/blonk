@@ -22,6 +22,8 @@ defmodule ElixirBlonk.Application do
       ElixirBlonk.ATProto.SessionManager,
       # Start the Firehose supervisor
       ElixirBlonk.Firehose.Supervisor,
+      # Start the HotPostSweeper for periodic checking
+      ElixirBlonk.HotPostSweeper,
       # Start to serve requests, typically the last entry
       ElixirBlonkWeb.Endpoint
     ]

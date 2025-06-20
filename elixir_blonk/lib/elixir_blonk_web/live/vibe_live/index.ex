@@ -1,7 +1,8 @@
 defmodule ElixirBlonkWeb.VibeLive.Index do
   use ElixirBlonkWeb, :live_view
 
-  alias ElixirBlonk.Vibes
+  alias ElixirBlonk.{Vibes, Blips}
+  import ElixirBlonkWeb.Components.WordCloudModal
 
   @impl true
   def mount(_params, _session, socket) do
@@ -17,7 +18,10 @@ defmodule ElixirBlonkWeb.VibeLive.Index do
      socket
      |> assign(:vibes, vibes)
      |> assign(:emerging_vibes, emerging_vibes)
-     |> assign(:vibe_stats, vibe_stats)}
+     |> assign(:vibe_stats, vibe_stats)
+     |> assign(:show_word_cloud_modal, false)
+     |> assign(:selected_vibe, nil)
+     |> assign(:tag_frequency, [])}
   end
 
   @impl true
@@ -33,6 +37,33 @@ defmodule ElixirBlonkWeb.VibeLive.Index do
   defp apply_action(socket, :emerging, _params) do
     socket
     |> assign(:page_title, "Emerging Vibes")
+  end
+
+  @impl true
+  def handle_event("show_word_cloud", %{"vibe-id" => vibe_id}, socket) do
+    vibe = Vibes.get_vibe!(vibe_id)
+    tag_frequency = Blips.get_vibe_tag_frequency(vibe_id)
+    
+    {:noreply,
+     socket
+     |> assign(:show_word_cloud_modal, true)
+     |> assign(:selected_vibe, vibe)
+     |> assign(:tag_frequency, tag_frequency)}
+  end
+
+  @impl true
+  def handle_event("close_word_cloud_modal", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:show_word_cloud_modal, false)
+     |> assign(:selected_vibe, nil)
+     |> assign(:tag_frequency, [])}
+  end
+
+  @impl true
+  def handle_event("prevent_close", _params, socket) do
+    # Do nothing - this prevents the modal from closing when clicking inside
+    {:noreply, socket}
   end
 
   @impl true
