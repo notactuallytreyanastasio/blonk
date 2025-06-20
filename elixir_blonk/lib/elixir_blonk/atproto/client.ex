@@ -13,6 +13,8 @@ defmodule ElixirBlonk.ATProto.Client do
   @vibe_member_nsid "com.blonk.vibeMember"
   @groove_nsid "com.blonk.groove"
   @comment_nsid "com.blonk.comment"
+  @tag_nsid "com.blonk.tag"
+  @blip_tag_nsid "com.blonk.blipTag"
 
   # Configuration
   @service Application.compile_env(:elixir_blonk, :atproto_service, "https://bsky.social")
@@ -281,5 +283,47 @@ defmodule ElixirBlonk.ATProto.Client do
       %{"replies" => replies} when is_list(replies) -> length(replies)
       _ -> 0
     end
+  end
+
+  @doc """
+  Creates a tag record in ATProto.
+  """
+  def create_tag(client, tag) do
+    record = %{
+      "$type" => @tag_nsid,
+      name: tag.name,
+      description: tag.description,
+      author: tag.author_did,
+      createdAt: DateTime.to_iso8601(tag.indexed_at || DateTime.utc_now())
+    }
+    |> compact_record()
+
+    create_record(client, @tag_nsid, record)
+  end
+
+  @doc """
+  Creates a blip-tag association record in ATProto.
+  """
+  def create_blip_tag(client, blip_tag) do
+    # Get the blip and tag records
+    blip = ElixirBlonk.Blips.get_blip!(blip_tag.blip_id)
+    tag = ElixirBlonk.Tags.get_tag!(blip_tag.tag_id)
+
+    record = %{
+      "$type" => @blip_tag_nsid,
+      blip: %{
+        uri: blip.uri,
+        cid: blip.cid
+      },
+      tag: %{
+        uri: tag.uri,
+        cid: tag.cid
+      },
+      author: blip_tag.author_did,
+      createdAt: DateTime.to_iso8601(DateTime.utc_now())
+    }
+    |> compact_record()
+
+    create_record(client, @blip_tag_nsid, record)
   end
 end
