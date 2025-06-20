@@ -40,11 +40,11 @@ defmodule ElixirBlonk.BlipTags do
   ## Examples
   
       # Tag a new blip submission
-      BlipTags.associate_tags_with_blip(blip_id, ["defi", "ethereum"], user_did)
+      BlipTags.associate_tags_with_blip(blip_id, ["art", "design"], user_did)
       
-      # Find trending crypto content across all vibes  
-      crypto_tag = Tags.get_tag_by_name("crypto")
-      trending_crypto = BlipTags.get_blips_for_tag(crypto_tag.id)
+      # Find trending art content across all vibes  
+      art_tag = Tags.get_tag_by_name("art")
+      trending_art = BlipTags.get_blips_for_tag(art_tag.id)
       
       # Clean up tags when content is removed
       BlipTags.remove_all_tags_from_blip(blip_id)

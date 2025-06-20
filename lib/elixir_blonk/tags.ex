@@ -31,7 +31,7 @@ defmodule ElixirBlonk.Tags do
   
   ## Relationship to Blonk Core Concepts
   
-  - **Vibes**: Tags help categorize blips within vibes (e.g., #crypto blips in crypto_vibe)
+  - **Vibes**: Tags help categorize blips within vibes (e.g., #art blips in art_vibe)
   - **Blips**: Each blip can have multiple tags for cross-vibe discovery
   - **Radar**: Popular tags surface trending content across all vibes
   - **Grooves**: Users groove on tagged content, increasing tag visibility
@@ -39,9 +39,9 @@ defmodule ElixirBlonk.Tags do
   
   ## Examples
   
-      # Find trending blockchain content across all vibes
-      blockchain_tag = Tags.get_tag_by_name("blockchain")
-      trending_blips = BlipTags.get_blips_for_tag(blockchain_tag.id)
+      # Find trending art content across all vibes
+      art_tag = Tags.get_tag_by_name("art")
+      trending_blips = BlipTags.get_blips_for_tag(art_tag.id)
       
       # Create a new tag when first used
       {:ok, ai_tag} = Tags.find_or_create_tag("ai", user_did, "Artificial Intelligence")

@@ -36,7 +36,7 @@ Blonk is built as a first-class ATProto application with custom record types:
 
 - `com.blonk.vibe` - Community topic feeds
 - `com.blonk.blip` - Content submissions  
-- `com.blonk.groove` - Community engagement
+- `com.blonk.groove` - Community engagement on specific blips
 - `com.blonk.tag` - Universal content labels
 - `com.blonk.blipTag` - Content categorization associations
 
@@ -93,28 +93,30 @@ export ATP_PASSWORD=your-app-password
 Post `#vibe-topic_name` to create new community vibes:
 
 ```
-Check out this cool #vibe-blockchain project! #defi #web3
+Check out this cool #vibe-art project! #design #creative
 ```
 
-Once enough community members use `#vibe-blockchain`, it becomes an official vibe.
+Once enough community members use `#vibe-art`, it becomes an official vibe.
 
 ### Submitting Blips
 
 Submit content to vibes with relevant tags:
 
 ```
-Title: "New DeFi Protocol Launch"
-Body: "Exciting developments in yield farming..."
-Vibe: blockchain_vibe
-Tags: #defi #yield #ethereum
+Title: "Amazing New Design Framework"
+Body: "This changes everything for designers..."
+Vibe: design_vibe
+Tags: #design #tools #creative
 ```
 
 ### Community Engagement
 
-- **👍 looks_good** - Positive community feedback
-- **💩 shit_rips** - Critical community feedback  
+Groove on blips to provide community feedback:
 
-Grooves drive content visibility and trending algorithms.
+- **👍 looks_good** - Positive endorsement of the blip
+- **shit_rips** - Critical feedback on the blip  
+
+Each groove is linked to a specific blip and drives content visibility on the radar.
 
 ### Discovery
 

@@ -36,8 +36,8 @@ defmodule ElixirBlonk.ATProto do
   - `com.blonk.blip` - Content submissions to vibes
   - `com.blonk.tag` - Universal community labels
   - `com.blonk.blipTag` - Content categorization associations
+  - `com.blonk.groove` - Community engagement records (looks_good/shit_rips)
   - `com.blonk.vibe` - Topic-based community feeds (future)
-  - `com.blonk.groove` - Community engagement records (future)
   
   ## Error Handling
   
@@ -55,6 +55,7 @@ defmodule ElixirBlonk.ATProto do
       # Create Blonk records
       {:ok, %{uri: uri, cid: cid}} = ATProto.create_blip(client, blip)
       {:ok, %{uri: uri, cid: cid}} = ATProto.create_tag(client, tag)
+      {:ok, %{uri: uri, cid: cid}} = ATProto.create_groove(client, groove)
       
       # Analyze engagement for hot posts
       {:ok, %{reply_count: count}} = ATProto.get_post_engagement(client, post_uri)
@@ -254,6 +255,58 @@ defmodule ElixirBlonk.ATProto do
     |> compact_record()
 
     create_record(client, @blip_tag_nsid, record)
+  end
+
+  @doc """
+  Create a groove (community engagement) record in ATProto.
+  
+  Grooves are Blonk's community feedback mechanism, enabling users to express
+  their reaction to blips through binary engagement (looks_good/shit_rips).
+  Each groove is tightly linked to a specific blip.
+  
+  ## Blip-Groove Relationship
+  
+  **Every groove references the blip it's responding to:**
+  - Groove record includes blip URI/CID for cross-platform reference
+  - Database foreign key ensures data integrity
+  - Enables discovery of all grooves for a specific blip
+  - Powers community-driven content curation algorithms
+  
+  ## ATProto Schema (`com.blonk.groove`)
+  
+  - `blip` - Reference to the grooved blip (uri/cid)
+  - `grooveType` - Either "looks_good" or "shit_rips"  
+  - `author` - DID of user creating the groove
+  - `createdAt` - When this groove was created
+  
+  ## Community Impact
+  
+  Grooves create the engagement signals that drive Blonk's discovery:
+  - High groove counts surface popular content on radar
+  - Community consensus emerges through groove patterns
+  - Cross-vibe content discovery powered by groove activity
+  
+  ## Examples
+  
+      # User grooves positively on a blip
+      {:ok, %{uri: uri, cid: cid}} = ATProto.create_groove(client, groove)
+      # Results in: at://did:plc:user/com.blonk.groove/rkey
+      # Links to: at://did:plc:author/com.blonk.blip/tech-post
+  """
+  def create_groove(%__MODULE__{} = client, groove) do
+    # Get the blip record that this groove is for
+    blip = ElixirBlonk.Blips.get_blip!(groove.blip_id)
+
+    record = %{
+      "$type" => @groove_nsid,
+      blip: %{uri: blip.uri, cid: blip.cid},
+      grooveType: groove.groove_type,
+      author: groove.author_did,
+      createdAt: DateTime.to_iso8601(DateTime.utc_now())
+    }
+    |> compact_record()
+
+    create_record(client, @groove_nsid, record)
   end
 
   defp compact_record(record) do

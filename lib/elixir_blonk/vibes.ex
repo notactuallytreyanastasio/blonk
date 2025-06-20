@@ -9,7 +9,7 @@ defmodule ElixirBlonk.Vibes do
   ## What Are Vibes?
   
   **Vibes are community-driven topic feeds:**
-  - Interest-based communities (e.g., crypto_vibe, art_vibe, tech_vibe)
+  - Interest-based communities (e.g., art_vibe, tech_vibe, music_vibe)
   - Created organically through #vibe-name mentions reaching critical mass
   - Contain blips relevant to the community's focus
   - Enable targeted audience engagement and content discovery
@@ -71,14 +71,14 @@ defmodule ElixirBlonk.Vibes do
   
       # Track a potential new vibe
       Vibes.record_vibe_mention(%{
-        vibe_name: "defi",
+        vibe_name: "art",
         author_did: "did:plc:user123",
         post_uri: "at://did:plc:user123/app.bsky.feed.post/rkey",
         mentioned_at: DateTime.utc_now()
       })
       
       # Check if vibe has reached emergence threshold
-      case Vibes.check_vibe_emergence("defi") do
+      case Vibes.check_vibe_emergence("art") do
         {:emerging, vibe} -> 
           # New community has formed!
         {:not_ready, count} -> 
@@ -86,7 +86,7 @@ defmodule ElixirBlonk.Vibes do
       end
       
       # Get vibe content for radar
-      popular_blips = Blips.list_blips_by_vibe(crypto_vibe.uri)
+      popular_blips = Blips.list_blips_by_vibe(art_vibe.uri)
   """
 
   import Ecto.Query, warn: false

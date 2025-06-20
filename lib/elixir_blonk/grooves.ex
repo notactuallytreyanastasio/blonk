@@ -11,7 +11,7 @@ defmodule ElixirBlonk.Grooves do
   
   **Grooves are binary community feedback on blips:**
   - **looks_good** (👍) - Positive community endorsement
-  - **shit_rips** (💩) - Critical community feedback
+  - **shit_rips** - Critical community feedback
   - Each user can groove once per blip with either reaction
   - Groove counts drive content visibility and trending algorithms
   - Community-driven curation without complex scoring systems
@@ -87,6 +87,7 @@ defmodule ElixirBlonk.Grooves do
   """
 
   import Ecto.Query, warn: false
+  require Logger
   alias ElixirBlonk.Repo
 
   alias ElixirBlonk.Grooves.Groove
@@ -106,17 +107,24 @@ defmodule ElixirBlonk.Grooves do
       attrs
     end
 
-    %Groove{}
-    |> Groove.changeset(attrs)
-    |> Repo.insert()
-    |> case do
-      {:ok, groove} ->
-        # Update groove counts on the blip
-        if groove.blip_id do
-          Blips.update_groove_counts(groove.blip_id)
-        end
-        {:ok, groove}
-      error -> error
+    # First create in local database
+    with {:ok, groove} <- %Groove{}
+                          |> Groove.changeset(attrs)
+                          |> Repo.insert() do
+      
+      # Update groove counts on the blip
+      if groove.blip_id do
+        Blips.update_groove_counts(groove.blip_id)
+      end
+      
+      # Then try to create in ATProto if enabled
+      if Application.get_env(:elixir_blonk, :atproto_enabled, true) do
+        Task.Supervisor.start_child(ElixirBlonk.TaskSupervisor, fn ->
+          create_groove_in_atproto(groove)
+        end)
+      end
+      
+      {:ok, groove}
     end
   end
 
@@ -224,5 +232,23 @@ defmodule ElixirBlonk.Grooves do
     |> where([g], g.author_did == ^author_did and g.subject_uri == ^subject_uri)
     |> select([g], g.groove_type)
     |> Repo.one()
+  end
+
+  # Private functions
+
+  defp create_groove_in_atproto(groove) do
+    with {:ok, client} <- ElixirBlonk.ATProto.SimpleSession.get_client(),
+         {:ok, %{uri: uri, cid: cid}} <- ElixirBlonk.ATProto.create_groove(client, groove) do
+      
+      # Update local record with ATProto URI and CID
+      groove
+      |> Groove.changeset(%{uri: uri, cid: cid})
+      |> Repo.update()
+      
+      Logger.info("Created groove in ATProto: #{uri}")
+    else
+      {:error, reason} ->
+        Logger.error("Failed to create groove in ATProto: #{inspect(reason)}")
+    end
   end
 end

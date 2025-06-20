@@ -54,10 +54,10 @@ defmodule ElixirBlonk.HotPostSweeper do
   
   ## Examples
   
-      # Sweeper finds a trending crypto post
+      # Sweeper finds a trending tech post
       hot_post = %HotPost{
-        text: "New DeFi protocol just launched...",
-        external_url: "https://protocol.xyz",
+        text: "Amazing new development framework released...",
+        external_url: "https://example.com/framework",
         reply_count: 12  # Above threshold!
       }
       

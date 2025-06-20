@@ -68,7 +68,7 @@ defmodule ElixirBlonk.Firehose.Consumer do
   ## Examples
   
       # Vibe mention detection
-      "I love this new #vibe-solana ecosystem!"
+      "I love this new #vibe-art community!"
       → Records vibe mention for potential community creation
       
       # Hot post sampling

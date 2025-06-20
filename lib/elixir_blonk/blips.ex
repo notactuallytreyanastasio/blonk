@@ -59,21 +59,21 @@ defmodule ElixirBlonk.Blips do
   
   ## Examples
   
-      # Create a blip for the crypto vibe
+      # Create a blip for a vibe
       {:ok, blip} = Blips.create_blip(%{
-        title: "New DeFi Protocol Launch",
-        body: "Exciting developments in yield farming...",
-        url: "https://protocol.xyz",
-        vibe_uri: crypto_vibe.uri,
-        tags: ["defi", "yield", "ethereum"],
+        title: "Amazing New Framework Released",
+        body: "This changes everything for developers...",
+        url: "https://example.com/framework",
+        vibe_uri: tech_vibe.uri,
+        tags: ["framework", "productivity", "tools"],
         author_did: "did:plc:user123"
       })
       
       # Find blips by tag across all vibes
-      defi_blips = Blips.list_blips_by_tag("defi")
+      framework_blips = Blips.list_blips_by_tag("framework")
       
       # Search blips by content
-      search_results = Blips.search_blips("protocol")
+      search_results = Blips.search_blips("framework")
   """
 
   import Ecto.Query, warn: false
