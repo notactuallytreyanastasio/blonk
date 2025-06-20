@@ -18,8 +18,8 @@ defmodule ElixirBlonk.Application do
       # {ElixirBlonk.Worker, arg},
       # Task supervisor for async operations
       {Task.Supervisor, name: ElixirBlonk.TaskSupervisor},
-      # Start the ATProto session manager
-      ElixirBlonk.ATProto.SessionManager,
+      # Start the simple ATProto session manager
+      ElixirBlonk.ATProto.SimpleSession,
       # Start the Firehose supervisor
       ElixirBlonk.Firehose.Supervisor,
       # Start the HotPostSweeper for periodic checking

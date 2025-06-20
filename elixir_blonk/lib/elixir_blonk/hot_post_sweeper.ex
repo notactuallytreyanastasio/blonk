@@ -8,7 +8,6 @@ defmodule ElixirBlonk.HotPostSweeper do
   require Logger
 
   alias ElixirBlonk.{HotPosts, Vibes, Blips}
-  alias ElixirBlonk.ATProto.{Client, SessionManager}
 
   # Check every 10 minutes
   @sweep_interval_ms 10 * 60 * 1000
@@ -79,13 +78,9 @@ defmodule ElixirBlonk.HotPostSweeper do
   end
 
   defp get_post_reply_count(post_uri) do
-    case SessionManager.get_client() do
+    case ElixirBlonk.ATProto.SimpleSession.get_client() do
       {:ok, client} ->
-        client_map = %{client: client}
-        case Client.get_post_engagement(client_map, post_uri) do
-          {:ok, %{reply_count: count}} -> {:ok, count}
-          {:error, reason} -> {:error, reason}
-        end
+        ElixirBlonk.ATProto.get_post_engagement(client, post_uri)
       
       {:error, reason} ->
         {:error, reason}

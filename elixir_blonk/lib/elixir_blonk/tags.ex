@@ -1,6 +1,53 @@
 defmodule ElixirBlonk.Tags do
   @moduledoc """
-  The Tags context for managing tag records in ATProto.
+  The Tags context for managing universal tag records in the Blonk ecosystem.
+  
+  This context provides the core functionality for Blonk's tag system, where
+  tags are first-class ATProto records that enable community-driven content
+  categorization and discovery across the radar.
+  
+  ## Core Concepts
+  
+  **Tags in Blonk** are universal, community-owned labels that categorize blips.
+  Unlike traditional hashtags that exist only within posts, Blonk tags are 
+  persistent records with rich metadata, usage tracking, and cross-platform
+  discoverability through ATProto.
+  
+  ## Key Features
+  
+  - **Universal Tags**: Only one tag exists per name globally
+  - **Community Ownership**: Anyone can use any tag, promoting shared vocabulary
+  - **Usage Tracking**: Popular tags surface through organic community engagement
+  - **ATProto Native**: Each tag is a `com.blonk.tag` record with URI/CID
+  - **Rich Metadata**: Tags support descriptions and creator attribution
+  
+  ## Tag Lifecycle in Blonk's Ecosystem
+  
+  1. **Discovery**: Users encounter tags on blips across vibes
+  2. **Creation**: First use of a tag name creates the universal record
+  3. **Association**: Tags get linked to blips via BlipTag junction records
+  4. **Community Growth**: Usage count increases, surfacing popular tags
+  5. **Radar Integration**: Popular tags appear in trending/discovery feeds
+  
+  ## Relationship to Blonk Core Concepts
+  
+  - **Vibes**: Tags help categorize blips within vibes (e.g., #crypto blips in crypto_vibe)
+  - **Blips**: Each blip can have multiple tags for cross-vibe discovery
+  - **Radar**: Popular tags surface trending content across all vibes
+  - **Grooves**: Users groove on tagged content, increasing tag visibility
+  - **Community**: Shared tags create natural topic-based communities
+  
+  ## Examples
+  
+      # Find trending blockchain content across all vibes
+      blockchain_tag = Tags.get_tag_by_name("blockchain")
+      trending_blips = BlipTags.get_blips_for_tag(blockchain_tag.id)
+      
+      # Create a new tag when first used
+      {:ok, ai_tag} = Tags.find_or_create_tag("ai", user_did, "Artificial Intelligence")
+      
+      # Get most popular tags for discovery
+      popular_tags = Tags.get_popular_tags(20)
   """
 
   import Ecto.Query, warn: false
@@ -136,8 +183,8 @@ defmodule ElixirBlonk.Tags do
   # Private functions
 
   defp create_tag_in_atproto(tag) do
-    with {:ok, client} <- ElixirBlonk.ATProto.SessionManager.get_client(),
-         {:ok, %{uri: uri, cid: cid}} <- ElixirBlonk.ATProto.Client.create_tag(client, tag) do
+    with {:ok, client} <- ElixirBlonk.ATProto.SimpleSession.get_client(),
+         {:ok, %{uri: uri, cid: cid}} <- ElixirBlonk.ATProto.create_tag(client, tag) do
       
       # Update local record with ATProto URI and CID
       update_tag(tag, %{uri: uri, cid: cid})

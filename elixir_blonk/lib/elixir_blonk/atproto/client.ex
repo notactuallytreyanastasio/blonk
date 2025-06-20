@@ -286,7 +286,35 @@ defmodule ElixirBlonk.ATProto.Client do
   end
 
   @doc """
-  Creates a tag record in ATProto.
+  Creates a universal tag record in ATProto.
+  
+  Tags in Blonk are community-owned labels that enable content discovery
+  across vibes and help surface trending blips on the radar.
+  
+  ## Blonk Integration
+  
+  - **Universal**: Each tag name has one canonical ATProto record
+  - **Community-Driven**: Anyone can use any tag, promoting shared vocabulary
+  - **Radar Discovery**: Popular tags surface trending content across vibes
+  - **Cross-Vibe**: Tags connect related content regardless of vibe membership
+  
+  ## ATProto Schema (`com.blonk.tag`)
+  
+  - `name` - Tag identifier without # symbol (e.g., "blockchain")
+  - `description` - Optional community description of tag purpose
+  - `creator` - DID of user who first created this tag (attribution only)
+  - `createdAt` - When this tag was first established in the community
+  
+  ## Examples
+  
+      # Create a new community tag
+      {:ok, %{uri: uri, cid: cid}} = Client.create_tag(client, crypto_tag)
+      # Results in: at://did:plc:blonk/com.blonk.tag/crypto
+      
+  ## Community Impact
+  
+  Universal tags enable organic topic communities to form across vibes,
+  helping users discover content and contributing to radar trending algorithms.
   """
   def create_tag(client, tag) do
     record = %{
@@ -303,6 +331,36 @@ defmodule ElixirBlonk.ATProto.Client do
 
   @doc """
   Creates a blip-tag association record in ATProto.
+  
+  BlipTag associations enable content discovery by linking individual blips
+  to universal community tags. These associations power cross-vibe discovery
+  and trending algorithms on the radar.
+  
+  ## Blonk Integration  
+  
+  - **Content Categorization**: Links blips to community tags for discovery
+  - **Cross-Vibe Discovery**: Find related content across different vibes
+  - **Trending**: Popular tagged content surfaces on radar frontpage
+  - **Community Growth**: Shared tags attract users to related vibes
+  
+  ## ATProto Schema (`com.blonk.blipTag`)
+  
+  - `blip` - Reference to the tagged blip (uri/cid)
+  - `tag` - Reference to the universal tag (uri/cid)  
+  - `author` - DID of user who created this association
+  - `createdAt` - When this tag was applied to the blip
+  
+  ## Examples
+  
+      # Associate a blip with a community tag
+      {:ok, %{uri: uri, cid: cid}} = Client.create_blip_tag(client, blip_tag)
+      # Results in: at://did:plc:user/com.blonk.blipTag/rkey
+      
+  ## Community Impact
+  
+  Tag associations create the knowledge graph that powers Blonk's discovery.
+  When users tag content, they're contributing to community curation and
+  helping surface quality content through grooves and trending algorithms.
   """
   def create_blip_tag(client, blip_tag) do
     # Get the blip and tag records

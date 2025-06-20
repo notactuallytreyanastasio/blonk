@@ -105,8 +105,8 @@ defmodule ElixirBlonk.Blips do
   end
 
   defp create_blip_in_atproto(blip) do
-    with {:ok, client} <- ElixirBlonk.ATProto.SessionManager.get_client(),
-         {:ok, %{uri: uri, cid: cid}} <- ElixirBlonk.ATProto.Client.create_blip(client, blip) do
+    with {:ok, client} <- ElixirBlonk.ATProto.SimpleSession.get_client(),
+         {:ok, %{uri: uri, cid: cid}} <- ElixirBlonk.ATProto.create_blip(client, blip) do
       
       # Update local record with ATProto URI and CID
       update_blip(blip, %{uri: uri, cid: cid})

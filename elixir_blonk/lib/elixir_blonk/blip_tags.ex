@@ -1,6 +1,53 @@
 defmodule ElixirBlonk.BlipTags do
   @moduledoc """
-  The BlipTags context for managing blip-tag associations.
+  The BlipTags context for managing blip-tag associations in the Blonk ecosystem.
+  
+  This context orchestrates the many-to-many relationships between blips and
+  universal tags, enabling community-driven content categorization and 
+  cross-vibe discovery on the radar.
+  
+  ## Core Purpose in Blonk
+  
+  **BlipTags power content discovery** by connecting blips across vibes through
+  shared community vocabulary. When users tag their blips, they're contributing
+  to a decentralized knowledge graph that helps surface trending content and
+  enables organic community formation around topics.
+  
+  ## Integration with Blonk Ecosystem
+  
+  - **Vibes**: Tags categorize blips within vibes for better organization
+  - **Radar**: Popular tagged content surfaces on the frontpage across vibes  
+  - **Grooves**: Community engagement on tagged blips increases tag visibility
+  - **Hot Posts**: Firehose content gets auto-tagged to seed community activity
+  - **Discovery**: Users find new vibes and blips through tag exploration
+  
+  ## Community Engagement Flow
+  
+  1. **Content Creation**: User submits blip with #hashtags to a vibe
+  2. **Tag Association**: System extracts tags and creates BlipTag records
+  3. **Community Discovery**: Other users find content through tag searches
+  4. **Groove Engagement**: Community grooves (looks_good/shit_rips) on tagged content
+  5. **Trending**: Popular tagged blips surface on radar frontpage
+  6. **Vibe Growth**: Successful tags attract more users to related vibes
+  
+  ## ATProto Integration
+  
+  Each BlipTag association is stored as a `com.blonk.blipTag` ATProto record,
+  enabling decentralized content discovery and cross-platform compatibility.
+  This means tagged content can be discovered outside of Blonk while maintaining
+  attribution and community context.
+  
+  ## Examples
+  
+      # Tag a new blip submission
+      BlipTags.associate_tags_with_blip(blip_id, ["defi", "ethereum"], user_did)
+      
+      # Find trending crypto content across all vibes  
+      crypto_tag = Tags.get_tag_by_name("crypto")
+      trending_crypto = BlipTags.get_blips_for_tag(crypto_tag.id)
+      
+      # Clean up tags when content is removed
+      BlipTags.remove_all_tags_from_blip(blip_id)
   """
 
   import Ecto.Query, warn: false
@@ -8,7 +55,7 @@ defmodule ElixirBlonk.BlipTags do
   alias ElixirBlonk.Repo
 
   alias ElixirBlonk.BlipTags.BlipTag
-  alias ElixirBlonk.{Blips, Tags}
+  alias ElixirBlonk.Tags
 
   @doc """
   Associates a tag with a blip.
@@ -128,8 +175,8 @@ defmodule ElixirBlonk.BlipTags do
   # Private functions
 
   defp create_blip_tag_in_atproto(blip_tag) do
-    with {:ok, client} <- ElixirBlonk.ATProto.SessionManager.get_client(),
-         {:ok, %{uri: uri, cid: cid}} <- ElixirBlonk.ATProto.Client.create_blip_tag(client, blip_tag) do
+    with {:ok, client} <- ElixirBlonk.ATProto.SimpleSession.get_client(),
+         {:ok, %{uri: uri, cid: cid}} <- ElixirBlonk.ATProto.create_blip_tag(client, blip_tag) do
       
       # Update local record with ATProto URI and CID
       blip_tag
