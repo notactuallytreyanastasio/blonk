@@ -1,153 +1,258 @@
-# Blonk
+# Blonk 🎯
 
-## What is Blonk?
-ATProto reddit.
-But it will be different, thats just a thing to say to make people place a vibe in their head.
+**A place to find blips on the radar of your web, with a focus on vibes.**
 
-Blonk doesn't have subreddits like a forum. It has loose groups of vibes.
+Blonk is a community-driven content discovery platform built on ATProto that enables organic topic communities to form around "vibes" - interest-based feeds where users submit "blips" (content) to get "grooves" (community engagement).
 
-Maybe they will just be subscribers, but maybe a vibe isnt just users it identifies but users who label themselves into it or something.
+## 🌟 Core Concepts
 
-We will need to build this in a way where it is consumable on its own website.
-It should have some mechanism where it creates its own lexicon or something for the links?
+### The Blonk Ecosystem
 
-I dont know, we are going to walk through this together.
+**🎯 Radar** - The frontpage that surfaces trending content across all vibes  
+**🌊 Vibes** - Topic-based communities created by community action (#vibe-your_topic)  
+**📡 Blips** - Content submissions to vibes that appear on the radar  
+**🎵 Grooves** - Community engagement: `looks_good` or `shit_rips`  
+**🏷️ Tags** - Universal labels that connect content across vibes  
 
-## Building It
-I started off with a simple TypeScript project and got cooking.
+### How It Works
 
-You can find that in aeb0dc780a395bf6193a8dc90bd4ab4f82f66d90.
+1. **Vibe Creation**: Communities emerge when `#vibe-topic_name` reaches critical mass
+2. **Content Submission**: Users submit blips to vibes with tags for categorization  
+3. **Community Engagement**: Others groove on blips, driving popularity
+4. **Radar Discovery**: Trending tagged content surfaces on the frontpage
+5. **Organic Growth**: Popular content attracts more users to related vibes
 
-```
-commit aeb0dc780a395bf6193a8dc90bd4ab4f82f66d90 (HEAD -> main)
-Author: Bobby Grayson <53058768+notactuallytreyanastasio@users.noreply.github.com>
-Date:   Thu Jun 19 09:53:56 2025 -0400
+### Community Seeding
 
-    Initial commit with a little structure.
+- **🔥 Hot Posts**: AI monitors the Bluesky firehose for trending content (>5 replies)
+- **Auto-Population**: Trending external content auto-populates the `bsky_hot` vibe
+- **Community Bootstrap**: Seeds engagement to kickstart organic community growth
 
-    We've added the ATProto SDK and set up a really basic setup.
-    It's all Claude generated, but this is a learning exercise to let's take
-    a look at it.
+## 🏗️ Architecture
 
-    BlonkAgent - to be renamed, but basically our Bsky client
+### ATProto-Native
 
-    POST_NSID - our namespace identifier (What is this? We'll come back to that)
+Blonk is built as a first-class ATProto application with custom record types:
 
-    PostManager - our interface to create or retrieve posts
+- `com.blonk.vibe` - Community topic feeds
+- `com.blonk.blip` - Content submissions  
+- `com.blonk.groove` - Community engagement
+- `com.blonk.tag` - Universal content labels
+- `com.blonk.blipTag` - Content categorization associations
 
-    `index.ts` - a super basic page skeleton
+### Technology Stack
 
-    With this I guess we can try to get some shit on a page.
-```
+- **Backend**: Elixir/Phoenix LiveView
+- **Database**: PostgreSQL with ATProto record sync
+- **Real-time**: WebSocket firehose integration with Bluesky
+- **Authentication**: ATProto app passwords
+- **Deployment**: Docker-ready
 
-I guess now I'm just going to see what Claude has cooked up?
+## 🚀 Getting Started
 
-Once we have some shit on a screen I can think a little more.
+### Prerequisites
 
-## The Story So Far
-We have a very basic setup that will in fact put something on atproto.
+- Elixir 1.18+
+- PostgreSQL 14+
+- Bluesky account with app password
 
-We made a pull request [here](https://github.com/notactuallytreyanastasio/blonk/pull/1) that got us the basics.
+### Installation
 
-So what next?
+```bash
+# Clone the repository
+git clone https://github.com/your-org/elixir_blonk.git
+cd elixir_blonk
 
-Well, first I am going to drop in React.
+# Install dependencies
+mix deps.get
 
-```
-lets just drop in react, we will need it later anyways.
-let's be adults about it. make sure to use the latest, and to do whatever dan abramov would do.
-He's pretty good.
-```
+# Set up environment
+cp .env.example .env
+# Edit .env with your Bluesky credentials
 
-This ought to go pretty far, but we will follow up in another pull request.
+# Set up database
+mix ecto.setup
 
-[Here] is the pull request.
-
-I am not going to give it a ton of feedback since React isn't really my lane, unless something really jumps out.
-
-I had to have a little back and forth, but we got to something running pretty quickly.
-
-## What now?
-Well, right now it only shows blips _from us_ -- we want to see other people's too and let them submit as well.
-
-How do we go about that? 
-Well I am not sure yet.
-
-Let's dig into some docs and ask Claude, too.
-
-Another prompt...
-
-```
-Blips need to have a "vibe" they belong to.
-"vibes" are simply a group of people and a feeling.
-Its not a topic like a subreddit or a forum.
-A vibe can be "Sunset Sunglasses Struts" or "doinkin right" or "dork nerd linkage" - we want people to not feel confined to a topic, but have an idea of the type of content that will come up in that circle.
-
-What do you think a good implementation step here is?
+# Start the server
+source .env && mix phx.server
 ```
 
-This started off looking pretty sane, and we'll look at it more, but I had a quick piece of feedback for it.
+### Environment Configuration
 
-```
-lets add some constraints.
-
-we dont want duplicate vibes to be able to be created.
-
-we dont want to allow people to create vibes quite yet.
-
-We are going to make a system where instead if enough people skeet a vibe as a #hashtag then we will create one if a certain threshold is hit via the firehose if they match a special form (#vibe-YOUR_VIBE) and make sure vibes must be something like YOUR_VIBE or your_vibe or YOURVIBE but not YOUR VIBE and make sure thats enforced both react client/server/atproto client level
+```bash
+# .env
+export ATP_SERVICE=https://bsky.social
+export ATP_IDENTIFIER=your-handle.bsky.social
+export ATP_PASSWORD=your-app-password
 ```
 
-Now, we will see where this really goes.
+## 🎮 Usage
 
-I kind of really like this idea of creating them by mention velocity.
+### Creating Vibes
 
-So, let's see what it has come up with now.
-
-`looks at app`
-
-It got the concept of seeding vibes right.
-
-There are 6 it seeded things with.
-
-To create a vibe, 5 people must post with #vibe-SOMETHING-OR_WHATEVER and then it will be found and counted.
-
-Once this happens, it creates the vibe so people can post in it.
-
-Once a vibe has been filled with blips, you can fluff blips with hell_yeah's or links_good's
-
-However, it didn't detect my first post.
+Post `#vibe-topic_name` to create new community vibes:
 
 ```
-I just posted #vibe-test_post and its not being detected.
-
-Are you sure you are monitoring the bluesky firehose for these hashtags and not something else?
-
-I saw it come along the wire in my other firehose monitor.
+Check out this cool #vibe-blockchain project! #defi #web3
 ```
 
-It wasn't detecting my vibes and tried to take some shortcuts.
+Once enough community members use `#vibe-blockchain`, it becomes an official vibe.
 
-So, I had it re-think that approach.
+### Submitting Blips
 
-
-```
-its failing to detect emerging vibes and we have no server logs indicating this.
-
-that is troublesome.
-
-we need to hash out if this firehose is even working and you are just making willy error handlers that cover important flaws in the system.
-
-Why is it using a search to find the vibes? We should be consuming the entire firehose!
-```
-
-And then
+Submit content to vibes with relevant tags:
 
 ```
-We should be defining types for all this incoming data!
-
-This is becoming incredibly hard to reason about and we still arent monitoring the firehose successfully
+Title: "New DeFi Protocol Launch"
+Body: "Exciting developments in yield farming..."
+Vibe: blockchain_vibe
+Tags: #defi #yield #ethereum
 ```
 
-And some manual editing, comments left for it to eat up, let's see where it gets.
+### Community Engagement
 
+- **👍 looks_good** - Positive community feedback
+- **💩 shit_rips** - Critical community feedback  
+
+Grooves drive content visibility and trending algorithms.
+
+### Discovery
+
+- **Radar**: Trending content across all vibes
+- **Vibe Pages**: Topic-specific content feeds
+- **Tag Pages**: Cross-vibe content by topic
+- **Hot Posts**: AI-curated trending external content
+
+## 🏷️ Tag System
+
+### Universal Tags
+
+Tags are community-owned labels that enable cross-vibe discovery:
+
+- **One Tag Per Name**: Only one `#blockchain` tag exists globally
+- **Community Driven**: Anyone can use any tag
+- **Usage Tracking**: Popular tags surface trending content
+- **Rich Metadata**: Tags support descriptions and attribution
+
+### Tag Lifecycle
+
+1. **First Use**: Creates universal tag record in ATProto
+2. **Association**: Links to blips via BlipTag junction records  
+3. **Community Growth**: Usage count drives popularity
+4. **Discovery**: Popular tags surface on radar
+
+## 🤖 AI Integration
+
+### Hot Post Detection
+
+The HotPostSweeper monitors Bluesky's firehose for trending content:
+
+- **Sampling**: 1 in 10 posts with links
+- **Engagement Check**: Looks for >5 replies after time delay
+- **Auto-Population**: Creates blips in `bsky_hot` vibe
+- **Community Seeding**: Bootstraps engagement for organic growth
+
+## 🎯 Community Philosophy
+
+### Vibe-Driven Discovery
+
+Blonk prioritizes **community vibes over algorithmic feeds**:
+
+- Communities form organically around shared interests
+- Content quality emerges through peer grooves  
+- Cross-vibe discovery happens through universal tags
+- Trending content reflects genuine community engagement
+
+### Decentralized Social
+
+Built on ATProto for true decentralization:
+
+- **Data Portability**: Your content, your control
+- **Cross-Platform**: Records work across ATProto apps
+- **Community Ownership**: Vibes and tags are community resources
+- **Open Protocol**: Extensible and interoperable
+
+## 🛠️ Development
+
+### Project Structure
+
+```
+lib/
+├── elixir_blonk/           # Core business logic
+│   ├── vibes/              # Community topic management
+│   ├── blips/              # Content submission system
+│   ├── grooves/            # Community engagement
+│   ├── tags/               # Universal tag system  
+│   ├── blip_tags/          # Tag associations
+│   ├── hot_posts/          # AI content curation
+│   ├── atproto/            # ATProto client & sync
+│   └── firehose/           # Real-time data ingestion
+├── elixir_blonk_web/       # Phoenix web interface
+└── priv/repo/migrations/   # Database schema
+```
+
+### Key Services
+
+- **SessionManager**: ATProto authentication & session management
+- **Firehose.Consumer**: Real-time Bluesky data ingestion  
+- **HotPostSweeper**: AI-driven content curation
+- **ATProto.Client**: Custom record type operations
+
+### Testing
+
+```bash
+# Run tests
+mix test
+
+# Run with coverage
+mix test --cover
+```
+
+## 📈 Roadmap
+
+### Phase 1: Community Bootstrap ✅
+- [x] Basic vibe/blip/groove system
+- [x] ATProto integration
+- [x] Hot post AI curation
+- [x] Universal tag system
+
+### Phase 2: Enhanced Discovery
+- [ ] Advanced radar algorithms  
+- [ ] User following/recommendations
+- [ ] Cross-vibe trending
+- [ ] Mobile app
+
+### Phase 3: Community Tools
+- [ ] Vibe moderation tools
+- [ ] Community governance
+- [ ] Creator monetization  
+- [ ] External integrations
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Development Setup
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see [LICENSE](LICENSE) for details.
+
+## 🙏 Acknowledgments
+
+- **ATProto Team** - For the decentralized social protocol
+- **Bluesky** - For the firehose API and ecosystem
+- **Phoenix/Elixir** - For the robust web framework
+- **Community** - For making vibes happen
+
+---
+
+**Ready to find your vibe?** 🌊
+
+Start exploring at [blonk.app](https://blonk.app) or run your own instance!

@@ -1,4 +1,86 @@
 defmodule ElixirBlonk.Firehose.Consumer do
+  @moduledoc """
+  Real-time Bluesky firehose consumer that powers Blonk's community discovery and seeding.
+  
+  This WebSocket consumer connects to Bluesky's real-time firehose to capture posts as
+  they're created, enabling two critical Blonk functions: organic vibe creation through
+  #vibe-name mentions and AI-driven community seeding through hot post detection.
+  
+  ## Core Functions
+  
+  **1. Vibe Discovery** - Monitors for `#vibe-name` hashtags to create new communities
+  **2. Hot Post Sampling** - Captures 1 in 10 posts with links for trending analysis
+  
+  ## Why the Firehose?
+  
+  **Real-time community formation** requires immediate detection of:
+  - New vibe mentions that could spawn communities
+  - Trending external content that could seed engagement
+  - Community activity patterns across the ATProto network
+  
+  ## Blonk Integration Strategy
+  
+  - **Vibe Creation**: `#vibe-crypto` mentions accumulate until reaching critical mass
+  - **Content Seeding**: Posts with links get sampled for potential trending analysis
+  - **Community Bootstrap**: External content helps solve the "empty restaurant" problem
+  - **Organic Growth**: Real community formation based on actual user interest
+  
+  ## Performance Characteristics
+  
+  **Designed for high-throughput, low-latency processing:**
+  - WebSocket connection for real-time data stream
+  - Async processing to prevent firehose backpressure
+  - Smart sampling (1 in 10) to avoid overwhelming the system
+  - Non-blocking operations that don't affect user experience
+  
+  ## Data Flow
+  
+  1. **Firehose Stream**: Receives real-time posts from Bluesky network
+  2. **Vibe Detection**: Scans for #vibe-name patterns in post text
+  3. **Link Sampling**: Identifies posts with external links for hot post analysis
+  4. **Async Processing**: Hands off to appropriate handlers without blocking
+  5. **Community Impact**: Powers both organic vibe creation and content seeding
+  
+  ## Error Handling
+  
+  **Resilient by design** to handle network issues and data anomalies:
+  - Automatic reconnection after disconnects
+  - Graceful handling of malformed messages
+  - Continued operation even if individual posts fail processing
+  - Comprehensive logging for debugging community growth patterns
+  
+  ## Community Growth Engine
+  
+  The firehose consumer is **Blonk's community growth engine** because it:
+  - Detects organic community formation through vibe mentions
+  - Seeds new communities with relevant trending content
+  - Provides real-time responsiveness to user interests
+  - Scales community discovery with network growth
+  
+  ## Sampling Strategy
+  
+  **1 in 10 posts with links** balances:
+  - **Quality**: Enough samples to catch trending content
+  - **Performance**: Doesn't overwhelm the hot post analysis system
+  - **Freshness**: Regular sampling ensures recent trends are captured
+  - **Diversity**: Broad coverage across different topics and communities
+  
+  ## Examples
+  
+      # Vibe mention detection
+      "I love this new #vibe-solana ecosystem!"
+      → Records vibe mention for potential community creation
+      
+      # Hot post sampling
+      "Check out this amazing new tool: https://cool-tool.com"
+      → 10% chance of being saved for trending analysis
+      
+      # Community seeding result
+      → Hot post with 8 replies becomes blip in bsky_hot vibe
+      → Users groove on it, driving engagement
+      → Topic tags inspire new organic vibes
+  """
+  
   use WebSockex
   require Logger
 

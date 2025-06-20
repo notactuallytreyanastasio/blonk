@@ -1,6 +1,92 @@
 defmodule ElixirBlonk.Vibes do
   @moduledoc """
-  The Vibes context.
+  The Vibes context for managing topic-based communities in the Blonk ecosystem.
+  
+  Vibes are the heart of Blonk's community organization - interest-based feeds where
+  users submit blips and engage through grooves. This context manages the organic
+  creation, discovery, and growth of community spaces through grassroots engagement.
+  
+  ## What Are Vibes?
+  
+  **Vibes are community-driven topic feeds:**
+  - Interest-based communities (e.g., crypto_vibe, art_vibe, tech_vibe)
+  - Created organically through #vibe-name mentions reaching critical mass
+  - Contain blips relevant to the community's focus
+  - Enable targeted audience engagement and content discovery
+  - Form the foundation for radar trending and cross-vibe connections
+  
+  ## Organic Community Creation
+  
+  **Vibes emerge naturally from community interest:**
+  1. **Mention Phase**: Users post content with #vibe-name hashtags
+  2. **Accumulation**: System tracks mentions across the firehose
+  3. **Critical Mass**: Once threshold is reached, vibe officially emerges
+  4. **Community Growth**: Members join, submit blips, and engage through grooves
+  5. **Radar Integration**: Popular vibe content surfaces on the frontpage
+  
+  ## Blonk Ecosystem Integration
+  
+  - **Blips**: Content submissions that give vibes their substance
+  - **Grooves**: Community engagement that drives vibe activity
+  - **Tags**: Universal labels that connect content across vibes
+  - **Radar**: Popular vibe content surfaces on the frontpage
+  - **Hot Posts**: AI-curated content seeds engagement in new vibes
+  
+  ## Community Philosophy
+  
+  **Vibes prioritize authentic community formation:**
+  - No top-down vibe creation - communities must emerge organically
+  - Interest-based rather than algorithm-driven organization
+  - Quality content rises through peer grooves, not engagement manipulation
+  - Cross-vibe discovery through universal tags promotes healthy growth
+  - Real community engagement over vanity metrics
+  
+  ## Vibe Lifecycle
+  
+  1. **Grassroots Mentions**: Users naturally reference #vibe-topics in posts
+  2. **Threshold Detection**: Firehose consumer tracks mention accumulation
+  3. **Emergence**: Vibe officially created when community interest is proven
+  4. **Content Submission**: Users submit relevant blips to the new vibe
+  5. **Community Engagement**: Members groove on content, driving activity
+  6. **Radar Visibility**: Popular content attracts new members
+  
+  ## Membership and Engagement
+  
+  **Flexible community participation:**
+  - Users can join multiple vibes based on interests
+  - Member counts visible for community size indication
+  - Activity levels drive vibe prominence on radar
+  - Tag frequency analysis reveals community interests
+  - Cross-vibe connections through shared tags and members
+  
+  ## Discovery Mechanisms
+  
+  **Multiple pathways for vibe discovery:**
+  - Emerging vibes list shows communities gaining momentum
+  - Tag-based discovery reveals related vibes
+  - Radar trending surfaces popular vibe content
+  - Member activity patterns suggest relevant communities
+  
+  ## Examples
+  
+      # Track a potential new vibe
+      Vibes.record_vibe_mention(%{
+        vibe_name: "defi",
+        author_did: "did:plc:user123",
+        post_uri: "at://did:plc:user123/app.bsky.feed.post/rkey",
+        mentioned_at: DateTime.utc_now()
+      })
+      
+      # Check if vibe has reached emergence threshold
+      case Vibes.check_vibe_emergence("defi") do
+        {:emerging, vibe} -> 
+          # New community has formed!
+        {:not_ready, count} -> 
+          # Still accumulating mentions: #{count}
+      end
+      
+      # Get vibe content for radar
+      popular_blips = Blips.list_blips_by_vibe(crypto_vibe.uri)
   """
 
   import Ecto.Query, warn: false

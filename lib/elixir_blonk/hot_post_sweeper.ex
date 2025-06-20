@@ -1,7 +1,70 @@
 defmodule ElixirBlonk.HotPostSweeper do
   @moduledoc """
-  GenServer that periodically sweeps hot posts to check for engagement
-  and creates blips for trending content.
+  AI-powered content curation service that transforms trending Bluesky posts into Blonk blips.
+  
+  The HotPostSweeper is the heart of Blonk's community bootstrap strategy, running every
+  10 minutes to analyze engagement on posts captured from the firehose and converting
+  highly-engaged content into blips that seed community activity.
+  
+  ## Core Mission
+  
+  **Solve the cold start problem** by ensuring there's always engaging content on the radar:
+  - Continuously analyze posts captured from Bluesky firehose
+  - Check reply counts to gauge community interest
+  - Convert trending content into blips for the bsky_hot vibe
+  - Maintain system performance through intelligent cleanup
+  
+  ## Why Every 10 Minutes?
+  
+  - **Fresh Content**: Recent posts need time to accumulate replies
+  - **System Performance**: Avoid overwhelming ATProto APIs with constant requests
+  - **Quality Control**: Allows natural filtering - truly engaging content rises
+  - **Community Timing**: Balances freshness with engagement validation
+  
+  ## Integration with Blonk Ecosystem
+  
+  - **Firehose Consumer**: Receives posts to analyze from real-time capture
+  - **ATProto API**: Checks reply counts via authenticated Bluesky calls
+  - **bsky_hot Vibe**: Creates blips for trending content in this community space
+  - **Radar**: Newly created blips surface on the frontpage for community grooves
+  - **HotPosts Context**: Manages the lifecycle of potential trending content
+  
+  ## AI Curation Logic
+  
+  1. **Batch Processing**: Analyzes up to 25 posts per sweep for efficiency
+  2. **Engagement Threshold**: Posts with ≥5 replies qualify as "hot"
+  3. **Retry Logic**: Failed API calls don't block other posts from processing
+  4. **Smart Cleanup**: Removes posts >1 day old or checked >10 times
+  5. **Conversion Tracking**: Prevents duplicate blips from same hot post
+  
+  ## Community Impact
+  
+  The sweeper creates a **virtuous cycle of engagement**:
+  - Quality external content attracts users to Blonk
+  - Users groove on hot blips, increasing visibility
+  - Popular topics inspire organic vibe creation
+  - Growing community activity attracts more users
+  
+  ## Performance Characteristics
+  
+  - **Non-blocking**: Runs in background without affecting user experience
+  - **Error Recovery**: Individual post failures don't crash the system
+  - **Rate Limited**: Respects ATProto API limits through batching
+  - **Self-cleaning**: Automatically maintains database efficiency
+  
+  ## Examples
+  
+      # Sweeper finds a trending crypto post
+      hot_post = %HotPost{
+        text: "New DeFi protocol just launched...",
+        external_url: "https://protocol.xyz",
+        reply_count: 12  # Above threshold!
+      }
+      
+      # Creates blip in bsky_hot vibe
+      # → Surfaces on radar
+      # → Users groove on it
+      # → Drives more engagement
   """
 
   use GenServer

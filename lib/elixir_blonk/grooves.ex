@@ -1,6 +1,89 @@
 defmodule ElixirBlonk.Grooves do
   @moduledoc """
-  The Grooves context.
+  The Grooves context for managing community engagement in the Blonk ecosystem.
+  
+  Grooves are Blonk's community feedback mechanism - the way users express their
+  reaction to blips through "looks_good" (positive) or "shit_rips" (critical)
+  responses. This context orchestrates the engagement that drives content visibility
+  and community curation.
+  
+  ## What Are Grooves?
+  
+  **Grooves are binary community feedback on blips:**
+  - **looks_good** (👍) - Positive community endorsement
+  - **shit_rips** (💩) - Critical community feedback
+  - Each user can groove once per blip with either reaction
+  - Groove counts drive content visibility and trending algorithms
+  - Community-driven curation without complex scoring systems
+  
+  ## Philosophy: Simple, Clear Feedback
+  
+  **Why binary grooves instead of complex voting?**
+  - Clear, unambiguous community sentiment
+  - Prevents gaming through vote manipulation
+  - Encourages authentic engagement over optimization
+  - Simple UI that promotes quick, honest reactions
+  - Community consensus emerges naturally through patterns
+  
+  ## Blonk Ecosystem Integration
+  
+  - **Blips**: Content receives grooves from community members
+  - **Vibes**: Groove activity indicates vibe health and engagement
+  - **Radar**: Popular (well-grooved) content surfaces on frontpage
+  - **Tags**: Grooves on tagged content influence tag popularity
+  - **Community**: Groove patterns reveal quality content and active members
+  
+  ## Community Engagement Mechanics
+  
+  **Grooves drive organic content curation:**
+  - High "looks_good" count signals quality content worth surfacing
+  - "shit_rips" provides critical feedback for content improvement
+  - Groove ratios help identify controversial vs consensus content
+  - Activity patterns reveal engaged community members
+  - Aggregated data drives radar trending algorithms
+  
+  ## Content Visibility Impact
+  
+  **Grooves determine what the community sees:**
+  1. **Vibe Ordering**: Well-grooved blips rise in vibe feeds
+  2. **Radar Prominence**: Popular content appears on frontpage
+  3. **Tag Trending**: Grooved tagged content influences tag popularity
+  4. **Community Health**: Active grooving indicates vibrant community
+  5. **Quality Signal**: Consistent groove patterns identify good content
+  
+  ## Anti-Gaming Design
+  
+  **Simple system resists manipulation:**
+  - One groove per user per blip (no vote stacking)
+  - Binary choice prevents complex optimization strategies
+  - Community patterns harder to fake than individual metrics
+  - Real engagement required - no anonymous or bulk actions
+  - ATProto attribution provides accountability
+  
+  ## Social Dynamics
+  
+  **Grooves create healthy community interaction:**
+  - Positive reinforcement for quality contributions
+  - Critical feedback mechanism for improvement
+  - Community consensus building through collective action
+  - Recognition for active, thoughtful community members
+  - Natural moderation through peer feedback
+  
+  ## Examples
+  
+      # User grooves positively on a blip
+      {:ok, groove} = Grooves.toggle_groove(
+        "did:plc:user123",
+        "at://did:plc:author/com.blonk.blip/rkey", 
+        "looks_good"
+      )
+      
+      # Check community sentiment on content
+      %{looks_good: 42, shit_rips: 3} = Grooves.get_groove_counts(blip_id)
+      
+      # Find most grooved content in vibe
+      trending_blips = Blips.list_blips_by_vibe(vibe_uri) 
+      |> Enum.sort_by(&(&1.grooves_looks_good), :desc)
   """
 
   import Ecto.Query, warn: false

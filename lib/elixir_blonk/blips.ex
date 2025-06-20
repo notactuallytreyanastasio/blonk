@@ -1,6 +1,79 @@
 defmodule ElixirBlonk.Blips do
   @moduledoc """
-  The Blips context.
+  The Blips context for managing content submissions in the Blonk ecosystem.
+  
+  Blips are the fundamental content unit in Blonk - posts submitted to vibes that appear
+  on the radar for community engagement. This context orchestrates blip creation, discovery,
+  and the integration with Blonk's universal tag system and ATProto records.
+  
+  ## What Are Blips?
+  
+  **Blips are content submissions that create community engagement:**
+  - Posts with title, optional body/URL, and tags
+  - Submitted to specific vibes for topical organization
+  - Appear on the radar for cross-vibe discovery
+  - Receive grooves (looks_good/shit_rips) from community
+  - Enable organic vibe creation through engagement patterns
+  
+  ## Blonk Ecosystem Integration
+  
+  - **Vibes**: Blips are submitted to topic-based communities
+  - **Radar**: Popular blips surface on the frontpage across vibes
+  - **Tags**: Universal labels enable cross-vibe content discovery
+  - **Grooves**: Community engagement drives blip visibility
+  - **ATProto**: Each blip becomes a `com.blonk.blip` record for portability
+  
+  ## Content Lifecycle
+  
+  1. **Submission**: User creates blip with title, body, tags for a vibe
+  2. **Tag Extraction**: System automatically extracts #hashtags from content
+  3. **ATProto Creation**: Blip becomes decentralized record with URI/CID
+  4. **Community Discovery**: Appears in vibe feeds and radar trending
+  5. **Engagement**: Users groove on content, driving popularity
+  6. **Cross-Vibe Discovery**: Tags enable finding related content across vibes
+  
+  ## Community Engagement Model
+  
+  **Blips are designed to encourage quality content:**
+  - Submission to relevant vibes ensures targeted audience
+  - Tag system enables broader discovery beyond vibe boundaries  
+  - Groove system (looks_good/shit_rips) provides clear feedback
+  - Popular content surfaces on radar, attracting more engagement
+  - External links in blips can become hot posts for community seeding
+  
+  ## Tag Integration
+  
+  **Universal tagging system** enhances content discovery:
+  - Automatic extraction of #hashtags from blip text
+  - Association with universal community-owned tag records
+  - Cross-vibe discovery through shared tag vocabulary
+  - Tag popularity tracking drives trending algorithms
+  
+  ## ATProto Integration
+  
+  **Decentralized content ownership** through ATProto records:
+  - Each blip becomes a `com.blonk.blip` ATProto record
+  - Content portability across ATProto applications
+  - User ownership of content and engagement data
+  - Cross-platform discoverability and interaction
+  
+  ## Examples
+  
+      # Create a blip for the crypto vibe
+      {:ok, blip} = Blips.create_blip(%{
+        title: "New DeFi Protocol Launch",
+        body: "Exciting developments in yield farming...",
+        url: "https://protocol.xyz",
+        vibe_uri: crypto_vibe.uri,
+        tags: ["defi", "yield", "ethereum"],
+        author_did: "did:plc:user123"
+      })
+      
+      # Find blips by tag across all vibes
+      defi_blips = Blips.list_blips_by_tag("defi")
+      
+      # Search blips by content
+      search_results = Blips.search_blips("protocol")
   """
 
   import Ecto.Query, warn: false

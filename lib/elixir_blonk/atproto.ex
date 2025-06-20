@@ -1,23 +1,73 @@
 defmodule ElixirBlonk.ATProto do
   @moduledoc """
-  Simple ATProto API client for Blonk operations.
+  Simple, direct ATProto API client for Blonk's decentralized social operations.
   
-  This module provides a straightforward interface to ATProto services,
-  handling authentication and making direct HTTP requests using Req.
+  This module provides a clean interface to ATProto services, handling authentication
+  and making straightforward HTTP requests using Req. Designed to replace complex
+  session management patterns with a simple, reliable approach.
   
-  ## Authentication
+  ## Philosophy: Keep It Simple
   
-  Uses app passwords for authentication, storing the access token in
-  process state for subsequent requests.
+  **Why simple?** Because ATProto is just HTTP APIs with bearer tokens:
+  - No complex session managers or client wrappers
+  - Direct Req calls with proper Authorization headers
+  - Fail fast on authentication issues (critical for Blonk)
+  - Clean error handling without overengineering
   
-  ## Usage
+  ## Blonk Integration
   
-      # Authenticate once
+  **Powers Blonk's decentralized architecture** by:
+  - Creating custom record types (blips, vibes, tags, grooves)
+  - Enabling cross-platform content discovery via ATProto
+  - Providing engagement analysis for hot post curation
+  - Maintaining data portability and user ownership
+  
+  ## Authentication Strategy
+  
+  Uses **app passwords** for secure, long-lived authentication:
+  - Authenticate once with user credentials
+  - Receive access token for subsequent requests
+  - Store token in client struct for reuse
+  - System fails fast if authentication fails (no silent degradation)
+  
+  ## Custom Record Types
+  
+  Blonk defines several custom NSIDs for community features:
+  - `com.blonk.blip` - Content submissions to vibes
+  - `com.blonk.tag` - Universal community labels
+  - `com.blonk.blipTag` - Content categorization associations
+  - `com.blonk.vibe` - Topic-based community feeds (future)
+  - `com.blonk.groove` - Community engagement records (future)
+  
+  ## Error Handling
+  
+  **Fail fast and clear** approach:
+  - Authentication failures crash the system (as intended)
+  - API errors return structured `{:error, reason}` tuples
+  - HTTP status codes properly mapped to error types
+  - No silent failures that could confuse community features
+  
+  ## Examples
+  
+      # One-time authentication
       {:ok, client} = ATProto.authenticate()
       
-      # Make API calls
+      # Create Blonk records
+      {:ok, %{uri: uri, cid: cid}} = ATProto.create_blip(client, blip)
+      {:ok, %{uri: uri, cid: cid}} = ATProto.create_tag(client, tag)
+      
+      # Analyze engagement for hot posts
+      {:ok, %{reply_count: count}} = ATProto.get_post_engagement(client, post_uri)
+      
+      # Direct record creation
       {:ok, %{uri: uri, cid: cid}} = ATProto.create_record(client, "com.blonk.blip", record)
-      {:ok, post} = ATProto.get_post(client, post_uri)
+  
+  ## Performance Characteristics
+  
+  - **Lightweight**: Just HTTP calls with bearer token headers
+  - **Concurrent**: Multiple requests can use the same client
+  - **Resilient**: Network errors don't break authentication state
+  - **Efficient**: No unnecessary abstraction layers or state management
   """
   
   require Logger
