@@ -91,7 +91,7 @@ defmodule ElixirBlonk.BlipTags do
   """
   def associate_tags_with_blip(blip_id, tag_names, author_did) when is_list(tag_names) do
     Enum.each(tag_names, fn tag_name ->
-      # Find or create the tag
+      # Find or create the universal tag
       {:ok, tag} = Tags.find_or_create_tag(tag_name, author_did)
       
       # Associate with blip (ignore if already exists)

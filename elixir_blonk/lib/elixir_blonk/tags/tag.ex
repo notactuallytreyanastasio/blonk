@@ -22,11 +22,11 @@ defmodule ElixirBlonk.Tags.Tag do
   def changeset(tag, attrs) do
     tag
     |> cast(attrs, [:uri, :cid, :name, :description, :author_did, :usage_count, :indexed_at])
-    |> validate_required([:name, :author_did])
+    |> validate_required([:name])
     |> validate_length(:name, min: 1, max: 50)
     |> validate_length(:description, max: 280)
     |> validate_format(:name, ~r/^[a-zA-Z0-9_]+$/, message: "can only contain letters, numbers, and underscores")
     |> unique_constraint(:uri)
-    |> unique_constraint([:name, :author_did], message: "tag name already exists for this author")
+    |> unique_constraint(:name, message: "tag name already exists")
   end
 end

@@ -34,11 +34,11 @@ defmodule ElixirBlonk.Tags do
   def get_tag!(id), do: Repo.get!(Tag, id)
 
   @doc """
-  Gets a tag by name and author.
+  Gets a tag by name (universal).
   """
-  def get_tag_by_name_and_author(name, author_did) do
+  def get_tag_by_name(name) do
     Tag
-    |> where([t], t.name == ^name and t.author_did == ^author_did)
+    |> where([t], t.name == ^name)
     |> Repo.one()
   end
 
@@ -82,14 +82,14 @@ defmodule ElixirBlonk.Tags do
   end
 
   @doc """
-  Finds or creates a tag by name and author.
+  Finds or creates a universal tag by name.
   """
-  def find_or_create_tag(name, author_did, description \\ nil) do
-    case get_tag_by_name_and_author(name, author_did) do
+  def find_or_create_tag(name, creator_did \\ nil, description \\ nil) do
+    case get_tag_by_name(name) do
       nil ->
         create_tag(%{
           name: name,
-          author_did: author_did,
+          author_did: creator_did,
           description: description,
           indexed_at: DateTime.utc_now()
         })

@@ -293,7 +293,7 @@ defmodule ElixirBlonk.ATProto.Client do
       "$type" => @tag_nsid,
       name: tag.name,
       description: tag.description,
-      author: tag.author_did,
+      creator: tag.author_did,
       createdAt: DateTime.to_iso8601(tag.indexed_at || DateTime.utc_now())
     }
     |> compact_record()
